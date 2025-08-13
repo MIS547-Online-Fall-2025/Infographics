@@ -1,0 +1,786 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Basics Essential Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0db7ed 0%, #003d6b 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #003d6b 0%, #001d36 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="30" width="15" height="10" fill="rgba(255,255,255,0.1)"/><rect x="40" y="25" width="15" height="10" fill="rgba(255,255,255,0.1)"/><rect x="60" y="35" width="15" height="10" fill="rgba(255,255,255,0.1)"/></svg>');
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .docker-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background: #0db7ed;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            color: white;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .concepts-section {
+            margin-bottom: 50px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #003d6b;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #0db7ed, #003d6b);
+            border-radius: 2px;
+        }
+        
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .concept-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border-radius: 15px;
+            padding: 30px;
+            border-left: 5px solid #0db7ed;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .concept-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(13, 183, 237, 0.2);
+        }
+        
+        .concept-icon {
+            position: absolute;
+            top: -15px;
+            right: 20px;
+            background: #0db7ed;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+        }
+        
+        .concept-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #003d6b;
+            margin-bottom: 15px;
+        }
+        
+        .concept-description {
+            color: #0f172a;
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+        
+        .concept-example {
+            background: #003d6b;
+            color: #0db7ed;
+            padding: 10px 12px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            margin-top: 10px;
+        }
+        
+        .workflow-section {
+            margin-bottom: 50px;
+        }
+        
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .workflow-step {
+            background: linear-gradient(135deg, #f7fafc 0%, #edf2f7 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #0db7ed;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .workflow-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(13, 183, 237, 0.2);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #0db7ed;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #003d6b;
+            margin-bottom: 10px;
+        }
+        
+        .step-command {
+            background: #003d6b;
+            color: #0db7ed;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .step-command::before {
+            content: '$ ';
+            color: #64748b;
+        }
+        
+        .step-description {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .command-category {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .command-category:hover {
+            border-color: #0db7ed;
+            transform: translateY(-3px);
+        }
+        
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #003d6b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .category-icon {
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #0db7ed, #003d6b);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .command-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f0f9ff;
+            border-radius: 10px;
+            border-left: 3px solid #0db7ed;
+        }
+        
+        .command-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .command-code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            color: #003d6b;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .command-desc {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+        
+        .dockerfile-section {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .dockerfile-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #003d6b;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .dockerfile-example {
+            background: #003d6b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .dockerfile-line {
+            margin-bottom: 8px;
+        }
+        
+        .dockerfile-command {
+            color: #0db7ed;
+            font-weight: bold;
+        }
+        
+        .dockerfile-comment {
+            color: #94a3b8;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .tips-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tip-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tip-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .tip-text {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .concepts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="docker-icon">🐳</div>
+            <h1>Docker Basics</h1>
+            <p>Essential Guide for Containerization</p>
+        </div>
+        
+        <div class="content">
+            <div class="concepts-section">
+                <h2 class="section-title">Core Concepts</h2>
+                <div class="concepts-grid">
+                    <div class="concept-card">
+                        <div class="concept-icon">📦</div>
+                        <div class="concept-title">Container</div>
+                        <div class="concept-description">
+                            A lightweight, portable package that includes everything needed to run an application: code, runtime, system tools, libraries, and settings.
+                        </div>
+                        <div class="concept-example">Like a shipping container for your app</div>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <div class="concept-icon">🎯</div>
+                        <div class="concept-title">Image</div>
+                        <div class="concept-description">
+                            A read-only template used to create containers. Images are built from a series of layers and can be shared via registries like Docker Hub.
+                        </div>
+                        <div class="concept-example">Blueprint for creating containers</div>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <div class="concept-icon">📄</div>
+                        <div class="concept-title">Dockerfile</div>
+                        <div class="concept-description">
+                            A text file containing instructions to build a Docker image. Each instruction creates a new layer in the image.
+                        </div>
+                        <div class="concept-example">Recipe for building images</div>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <div class="concept-icon">🏪</div>
+                        <div class="concept-title">Registry</div>
+                        <div class="concept-description">
+                            A service for storing and distributing Docker images. Docker Hub is the default public registry, but private registries are also common.
+                        </div>
+                        <div class="concept-example">App store for Docker images</div>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <div class="concept-icon">🎛️</div>
+                        <div class="concept-title">Volume</div>
+                        <div class="concept-description">
+                            A mechanism for persisting data generated by containers. Volumes exist outside the container lifecycle and can be shared between containers.
+                        </div>
+                        <div class="concept-example">Persistent storage for containers</div>
+                    </div>
+                    
+                    <div class="concept-card">
+                        <div class="concept-icon">🌐</div>
+                        <div class="concept-title">Port Mapping</div>
+                        <div class="concept-description">
+                            Links a port on the host machine to a port inside the container, allowing external access to containerized applications.
+                        </div>
+                        <div class="concept-example">Bridge between host and container</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workflow-section">
+                <h2 class="section-title">Basic Docker Workflow</h2>
+                <div class="workflow-grid">
+                    <div class="workflow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Pull an Image</div>
+                        <div class="step-command">docker pull nginx</div>
+                        <div class="step-description">Download a pre-built image from Docker Hub</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Run a Container</div>
+                        <div class="step-command">docker run -d -p 80:80 nginx</div>
+                        <div class="step-description">Create and start a container from the image</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">List Containers</div>
+                        <div class="step-command">docker ps</div>
+                        <div class="step-description">View all running containers</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Execute Commands</div>
+                        <div class="step-command">docker exec -it &lt;container&gt; bash</div>
+                        <div class="step-description">Run commands inside a running container</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">5</div>
+                        <div class="step-title">Stop Container</div>
+                        <div class="step-command">docker stop &lt;container&gt;</div>
+                        <div class="step-description">Gracefully stop a running container</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">6</div>
+                        <div class="step-title">Remove Container</div>
+                        <div class="step-command">docker rm &lt;container&gt;</div>
+                        <div class="step-description">Delete a stopped container</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Essential Commands</h2>
+            <div class="commands-grid">
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🎯</div>
+                        Image Management
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker images</div>
+                        <div class="command-desc">List all local images</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker pull &lt;image&gt;</div>
+                        <div class="command-desc">Download image from registry</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker build -t &lt;name&gt; .</div>
+                        <div class="command-desc">Build image from Dockerfile</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker rmi &lt;image&gt;</div>
+                        <div class="command-desc">Remove local image</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker tag &lt;source&gt; &lt;target&gt;</div>
+                        <div class="command-desc">Tag an image with new name</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📦</div>
+                        Container Operations
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker run &lt;image&gt;</div>
+                        <div class="command-desc">Create and start new container</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker ps -a</div>
+                        <div class="command-desc">List all containers (running and stopped)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker start &lt;container&gt;</div>
+                        <div class="command-desc">Start stopped container</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker restart &lt;container&gt;</div>
+                        <div class="command-desc">Restart running container</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker kill &lt;container&gt;</div>
+                        <div class="command-desc">Forcefully stop container</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔧</div>
+                        Debugging & Inspection
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker logs &lt;container&gt;</div>
+                        <div class="command-desc">View container logs</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker inspect &lt;container&gt;</div>
+                        <div class="command-desc">Get detailed container information</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker stats</div>
+                        <div class="command-desc">Show real-time resource usage</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker exec -it &lt;container&gt; sh</div>
+                        <div class="command-desc">Interactive shell inside container</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker cp &lt;container&gt;:/path /local</div>
+                        <div class="command-desc">Copy files between container and host</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🗂️</div>
+                        Volumes & Networks
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker volume ls</div>
+                        <div class="command-desc">List all volumes</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker volume create &lt;name&gt;</div>
+                        <div class="command-desc">Create new volume</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker network ls</div>
+                        <div class="command-desc">List all networks</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker network create &lt;name&gt;</div>
+                        <div class="command-desc">Create custom network</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker run -v &lt;volume&gt;:/path &lt;image&gt;</div>
+                        <div class="command-desc">Mount volume to container</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🧹</div>
+                        Cleanup Commands
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker system prune</div>
+                        <div class="command-desc">Remove unused containers, images, networks</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker container prune</div>
+                        <div class="command-desc">Remove all stopped containers</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker image prune</div>
+                        <div class="command-desc">Remove unused images</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker volume prune</div>
+                        <div class="command-desc">Remove unused volumes</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker system df</div>
+                        <div class="command-desc">Show Docker disk usage</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🚀</div>
+                        Registry Operations
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker login</div>
+                        <div class="command-desc">Login to Docker registry</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker push &lt;image&gt;</div>
+                        <div class="command-desc">Upload image to registry</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker search &lt;term&gt;</div>
+                        <div class="command-desc">Search Docker Hub for images</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker logout</div>
+                        <div class="command-desc">Logout from registry</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="dockerfile-section">
+                <h3 class="dockerfile-title">📄 Sample Dockerfile</h3>
+                <div class="dockerfile-example">
+                    <div class="dockerfile-line"><span class="dockerfile-comment"># Use official Node.js runtime as base image</span></div>
+                    <div class="dockerfile-line"><span class="dockerfile-command">FROM</span> node:18-alpine</div>
+                    <div class="dockerfile-line"></div>
+                    <div class="dockerfile-line"><span class="dockerfile-comment"># Set working directory inside container</span></div>
+                    <div class="dockerfile-line"><span class="dockerfile-command">WORKDIR</span> /app</div>
+                    <div class="dockerfile-line"></div>
+                    <div class="dockerfile-line"><span class="dockerfile-comment"># Copy package files</span></div>
+                    <div class="dockerfile-line"><span class="dockerfile-command">COPY</span> package*.json ./</div>
+                    <div class="dockerfile-line"></div>
+                    <div class="dockerfile-line"><span class="dockerfile-comment"># Install dependencies</span></div>
+                    <div class="dockerfile-line"><span class="dockerfile-command">RUN</span> npm install</div>
+                    <div class="dockerfile-line"></div>
+                    <div class="dockerfile-line"><span class="dockerfile-comment"># Copy application code</span></div>
+                    <div class="dockerfile-line"><span class="dockerfile-command">COPY</span> . .</div>
+                    <div class="dockerfile-line"></div>
+                    <div class="dockerfile-line"><span class="dockerfile-comment"># Expose port</span></div>
+                    <div class="dockerfile-line"><span class="dockerfile-command">EXPOSE</span> 3000</div>
+                    <div class="dockerfile-line"></div>
+                    <div class="dockerfile-line"><span class="dockerfile-comment"># Define startup command</span></div>
+                    <div class="dockerfile-line"><span class="dockerfile-command">CMD</span> ["npm", "start"]</div>
+                </div>
+            </div>
+            
+            <div class="tips-section">
+                <h3 class="tips-title">💡 Pro Tips</h3>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <div class="tip-title">Use .dockerignore</div>
+                        <div class="tip-text">Create a .dockerignore file to exclude unnecessary files from your Docker context</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Multi-stage Builds</div>
+                        <div class="tip-text">Use multi-stage builds to reduce final image size by separating build and runtime environments</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Layer Caching</div>
+                        <div class="tip-text">Order Dockerfile instructions to maximize layer caching - put changing files last</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Use Alpine Images</div>
+                        <div class="tip-text">Alpine-based images are smaller and more secure than full distributions</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Named Volumes</div>
+                        <div class="tip-text">Use named volumes instead of bind mounts for better portability and management</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Health Checks</div>
+                        <div class="tip-text">Add HEALTHCHECK instructions to monitor container status and enable automatic restarts</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Environment Variables</div>
+                        <div class="tip-text">Use environment variables for configuration instead of hardcoding values</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Regular Cleanup</div>
+                        <div class="tip-text">Run 'docker system prune' regularly to free up disk space from unused resources</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

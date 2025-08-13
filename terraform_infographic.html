@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terraform Infrastructure as Code Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #7c3aed 0%, #2563eb 50%, #0891b2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><polygon points="20,30 35,20 50,30 35,40" fill="rgba(124,58,237,0.3)"/><polygon points="60,50 75,40 90,50 75,60" fill="rgba(37,99,235,0.3)"/><polygon points="40,70 55,60 70,70 55,80" fill="rgba(8,145,178,0.3)"/></svg>');
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(45deg, #7c3aed, #0891b2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .terraform-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #7c3aed, #0891b2);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            color: white;
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .intro-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #7c3aed;
+        }
+        
+        .intro-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e1b4b;
+            margin-bottom: 15px;
+        }
+        
+        .intro-text {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .core-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .benefit-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .benefit-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .benefit-text {
+            font-weight: 600;
+            color: #1e1b4b;
+            font-size: 14px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e1b4b;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #7c3aed, #0891b2);
+            border-radius: 2px;
+        }
+        
+        .workflow-section {
+            margin-bottom: 50px;
+        }
+        
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .workflow-step {
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #7c3aed;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .workflow-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(124, 58, 237, 0.2);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #7c3aed;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e1b4b;
+            margin-bottom: 10px;
+        }
+        
+        .step-command {
+            background: #1e1b4b;
+            color: #0891b2;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .step-command::before {
+            content: '$ ';
+            color: #7c3aed;
+        }
+        
+        .step-description {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .command-category {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .command-category:hover {
+            border-color: #7c3aed;
+            transform: translateY(-3px);
+        }
+        
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e1b4b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .category-icon {
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #7c3aed, #0891b2);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .command-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #faf5ff;
+            border-radius: 10px;
+            border-left: 3px solid #7c3aed;
+        }
+        
+        .command-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .command-code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            color: #1e1b4b;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .command-desc {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+        
+        .terraform-example {
+            background: linear-gradient(135d, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .terraform-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #065f46;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .terraform-code {
+            background: #1e1b4b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .terraform-line {
+            margin-bottom: 4px;
+        }
+        
+        .terraform-resource {
+            color: #0891b2;
+            font-weight: bold;
+        }
+        
+        .terraform-key {
+            color: #7c3aed;
+        }
+        
+        .terraform-value {
+            color: #10b981;
+        }
+        
+        .terraform-comment {
+            color: #94a3b8;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .tips-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tip-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tip-title {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .tip-text {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .workflow-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="terraform-icon">🏗️</div>
+            <h1>Terraform</h1>
+            <p>Infrastructure as Code Made Simple</p>
+        </div>
+        
+        <div class="content">
+            <div class="intro-section">
+                <div class="intro-title">🚀 What is Terraform?</div>
+                <div class="intro-text">
+                    Terraform is an open-source Infrastructure as Code (IaC) tool that lets you build, change, and version infrastructure safely and efficiently. It uses a declarative language to describe your infrastructure and can manage resources across multiple cloud providers.
+                </div>
+                <div class="core-benefits">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">📝</div>
+                        <div class="benefit-text">Declarative</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔄</div>
+                        <div class="benefit-text">Version Control</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">☁️</div>
+                        <div class="benefit-text">Multi-Cloud</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔒</div>
+                        <div class="benefit-text">Safe Changes</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-text">Repeatable</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workflow-section">
+                <h2 class="section-title">Terraform Workflow</h2>
+                <div class="workflow-grid">
+                    <div class="workflow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Initialize</div>
+                        <div class="step-command">terraform init</div>
+                        <div class="step-description">Download providers and initialize working directory</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Plan</div>
+                        <div class="step-command">terraform plan</div>
+                        <div class="step-description">Preview changes before applying them</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Apply</div>
+                        <div class="step-command">terraform apply</div>
+                        <div class="step-description">Create or update infrastructure resources</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Validate</div>
+                        <div class="step-command">terraform validate</div>
+                        <div class="step-description">Check configuration syntax and consistency</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">5</div>
+                        <div class="step-title">Show State</div>
+                        <div class="step-command">terraform show</div>
+                        <div class="step-description">Display current state and resources</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">6</div>
+                        <div class="step-title">Destroy</div>
+                        <div class="step-command">terraform destroy</div>
+                        <div class="step-description">Remove all managed infrastructure</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Essential Terraform Commands</h2>
+            <div class="commands-grid">
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🚀</div>
+                        Core Commands
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform init</div>
+                        <div class="command-desc">Initialize Terraform working directory</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform plan</div>
+                        <div class="command-desc">Create execution plan</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform apply</div>
+                        <div class="command-desc">Apply configuration changes</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform destroy</div>
+                        <div class="command-desc">Destroy managed infrastructure</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform validate</div>
+                        <div class="command-desc">Validate configuration files</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📋</div>
+                        Planning & Output
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform plan -out=plan.tfplan</div>
+                        <div class="command-desc">Save plan to file</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform apply plan.tfplan</div>
+                        <div class="command-desc">Apply saved plan</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform plan -target=resource</div>
+                        <div class="command-desc">Plan for specific resource</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform output</div>
+                        <div class="command-desc">Show output values</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform output -json</div>
+                        <div class="command-desc">Show outputs in JSON format</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🗃️</div>
+                        State Management
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform state list</div>
+                        <div class="command-desc">List resources in state</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform state show &lt;resource&gt;</div>
+                        <div class="command-desc">Show detailed resource info</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform state mv &lt;src&gt; &lt;dest&gt;</div>
+                        <div class="command-desc">Move resource in state</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform state rm &lt;resource&gt;</div>
+                        <div class="command-desc">Remove resource from state</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform refresh</div>
+                        <div class="command-desc">Update state from real infrastructure</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📥</div>
+                        Import & Format
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform import &lt;resource&gt; &lt;id&gt;</div>
+                        <div class="command-desc">Import existing infrastructure</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform fmt</div>
+                        <div class="command-desc">Format configuration files</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform fmt -recursive</div>
+                        <div class="command-desc">Format all files in subdirectories</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform taint &lt;resource&gt;</div>
+                        <div class="command-desc">Mark resource for recreation</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform untaint &lt;resource&gt;</div>
+                        <div class="command-desc">Remove taint from resource</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔧</div>
+                        Workspace & Debug
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform workspace list</div>
+                        <div class="command-desc">List available workspaces</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform workspace new &lt;name&gt;</div>
+                        <div class="command-desc">Create new workspace</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform workspace select &lt;name&gt;</div>
+                        <div class="command-desc">Switch to workspace</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform console</div>
+                        <div class="command-desc">Interactive console for expressions</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform graph</div>
+                        <div class="command-desc">Generate dependency graph</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📦</div>
+                        Providers & Modules
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform providers</div>
+                        <div class="command-desc">Show provider requirements</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform providers lock</div>
+                        <div class="command-desc">Lock provider versions</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform get</div>
+                        <div class="command-desc">Download and install modules</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">terraform init -upgrade</div>
+                        <div class="command-desc">Upgrade providers and modules</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="terraform-example">
+                <h3 class="terraform-title">📄 Sample Terraform Configuration</h3>
+                <div class="terraform-code">
+                    <div class="terraform-line"><span class="terraform-comment"># Configure the AWS Provider</span></div>
+                    <div class="terraform-line"><span class="terraform-resource">terraform</span> {</div>
+                    <div class="terraform-line">  <span class="terraform-key">required_providers</span> = {</div>
+                    <div class="terraform-line">    <span class="terraform-key">aws</span> = {</div>
+                    <div class="terraform-line">      <span class="terraform-key">source</span>  = <span class="terraform-value">"hashicorp/aws"</span></div>
+                    <div class="terraform-line">      <span class="terraform-key">version</span> = <span class="terraform-value">"~> 5.0"</span></div>
+                    <div class="terraform-line">    }</div>
+                    <div class="terraform-line">  }</div>
+                    <div class="terraform-line">}</div>
+                    <div class="terraform-line"></div>
+                    <div class="terraform-line"><span class="terraform-comment"># Configure AWS Provider</span></div>
+                    <div class="terraform-line"><span class="terraform-resource">provider</span> <span class="terraform-value">"aws"</span> {</div>
+                    <div class="terraform-line">  <span class="terraform-key">region</span> = <span class="terraform-value">"us-west-2"</span></div>
+                    <div class="terraform-line">}</div>
+                    <div class="terraform-line"></div>
+                    <div class="terraform-line"><span class="terraform-comment"># Create a VPC</span></div>
+                    <div class="terraform-line"><span class="terraform-resource">resource</span> <span class="terraform-value">"aws_vpc"</span> <span class="terraform-value">"main"</span> {</div>
+                    <div class="terraform-line">  <span class="terraform-key">cidr_block</span>           = <span class="terraform-value">"10.0.0.0/16"</span></div>
+                    <div class="terraform-line">  <span class="terraform-key">enable_dns_hostnames</span> = <span class="terraform-value">true</span></div>
+                    <div class="terraform-line"></div>
+                    <div class="terraform-line">  <span class="terraform-key">tags</span> = {</div>
+                    <div class="terraform-line">    <span class="terraform-key">Name</span>        = <span class="terraform-value">"main-vpc"</span></div>
+                    <div class="terraform-line">    <span class="terraform-key">Environment</span> = <span class="terraform-value">"production"</span></div>
+                    <div class="terraform-line">  }</div>
+                    <div class="terraform-line">}</div>
+                    <div class="terraform-line"></div>
+                    <div class="terraform-line"><span class="terraform-comment"># Create an EC2 instance</span></div>
+                    <div class="terraform-line"><span class="terraform-resource">resource</span> <span class="terraform-value">"aws_instance"</span> <span class="terraform-value">"web"</span> {</div>
+                    <div class="terraform-line">  <span class="terraform-key">ami</span>           = <span class="terraform-value">"ami-0c94855ba95b798c7"</span></div>
+                    <div class="terraform-line">  <span class="terraform-key">instance_type</span> = <span class="terraform-value">"t3.micro"</span></div>
+                    <div class="terraform-line">  <span class="terraform-key">subnet_id</span>     = aws_subnet.public.id</div>
+                    <div class="terraform-line"></div>
+                    <div class="terraform-line">  <span class="terraform-key">tags</span> = {</div>
+                    <div class="terraform-line">    <span class="terraform-key">Name</span> = <span class="terraform-value">"web-server"</span></div>
+                    <div class="terraform-line">  }</div>
+                    <div class="terraform-line">}</div>
+                    <div class="terraform-line"></div>
+                    <div class="terraform-line"><span class="terraform-comment"># Output the instance IP</span></div>
+                    <div class="terraform-line"><span class="terraform-resource">output</span> <span class="terraform-value">"instance_ip"</span> {</div>
+                    <div class="terraform-line">  <span class="terraform-key">value</span> = aws_instance.web.public_ip</div>
+                    <div class="terraform-line">}</div>
+                </div>
+            </div>
+            
+            <div class="tips-section">
+                <h3 class="tips-title">💡 Terraform Best Practices</h3>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <div class="tip-title">Use Version Control</div>
+                        <div class="tip-text">Always store your Terraform configurations in version control like Git</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Remote State Storage</div>
+                        <div class="tip-text">Use remote state backends (S3, Terraform Cloud) for team collaboration</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">State Locking</div>
+                        <div class="tip-text">Enable state locking to prevent concurrent modifications</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Use Variables</div>
+                        <div class="tip-text">Parameterize configurations with variables for reusability</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Plan Before Apply</div>
+                        <div class="tip-text">Always run 'terraform plan' before applying changes</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Use Modules</div>
+                        <div class="

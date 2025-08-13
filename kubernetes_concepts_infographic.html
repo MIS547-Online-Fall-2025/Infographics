@@ -1,0 +1,692 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kubernetes Key Concepts</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #326ce5 0%, #1a4fa0 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 50px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .k8s-logo {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #326ce5, #1a4fa0);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2em;
+            color: white;
+            font-weight: bold;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #326ce5, #1a4fa0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: #666;
+            max-width: 700px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .concepts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+
+        .concept-card {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .concept-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .concept-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 25px 50px rgba(50, 108, 229, 0.15);
+            border-color: rgba(50, 108, 229, 0.3);
+        }
+
+        .concept-card.expanded {
+            transform: scale(1.02);
+            box-shadow: 0 30px 60px rgba(50, 108, 229, 0.2);
+        }
+
+        /* Concept-specific colors */
+        .cluster::before { background: linear-gradient(135deg, #326ce5, #1a4fa0); }
+        .pod::before { background: linear-gradient(135deg, #00d4aa, #00a085); }
+        .service::before { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .deployment::before { background: linear-gradient(135deg, #feca57, #ff9ff3); }
+        .namespace::before { background: linear-gradient(135deg, #48dbfb, #0abde3); }
+        .configmap::before { background: linear-gradient(135deg, #1dd1a1, #55a3ff); }
+        .ingress::before { background: linear-gradient(135deg, #ffeaa7, #fab1a0); }
+        .volume::before { background: linear-gradient(135deg, #fd79a8, #fdcb6e); }
+
+        .concept-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .concept-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8em;
+            color: white;
+            margin-right: 20px;
+        }
+
+        .cluster .concept-icon { background: linear-gradient(135deg, #326ce5, #1a4fa0); }
+        .pod .concept-icon { background: linear-gradient(135deg, #00d4aa, #00a085); }
+        .service .concept-icon { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .deployment .concept-icon { background: linear-gradient(135deg, #feca57, #ff9ff3); }
+        .namespace .concept-icon { background: linear-gradient(135deg, #48dbfb, #0abde3); }
+        .configmap .concept-icon { background: linear-gradient(135deg, #1dd1a1, #55a3ff); }
+        .ingress .concept-icon { background: linear-gradient(135deg, #ffeaa7, #fab1a0); }
+        .volume .concept-icon { background: linear-gradient(135deg, #fd79a8, #fdcb6e); }
+
+        .concept-title {
+            flex-grow: 1;
+        }
+
+        .concept-title h3 {
+            font-size: 1.8em;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+
+        .concept-subtitle {
+            color: #666;
+            font-size: 1.1em;
+        }
+
+        .expand-icon {
+            font-size: 1.5em;
+            transition: transform 0.3s ease;
+            opacity: 0.6;
+        }
+
+        .concept-card.expanded .expand-icon {
+            transform: rotate(45deg);
+        }
+
+        .concept-description {
+            font-size: 1.1em;
+            color: #555;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .concept-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.5s ease-out;
+        }
+
+        .concept-card.expanded .concept-details {
+            max-height: 800px;
+        }
+
+        .detail-section {
+            margin: 20px 0;
+        }
+
+        .detail-title {
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 10px;
+            font-size: 1.2em;
+        }
+
+        .detail-content {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .yaml-example {
+            background: #f8f9fa;
+            border: 1px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9em;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .use-cases {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 15px;
+        }
+
+        .use-case {
+            background: rgba(50, 108, 229, 0.1);
+            color: #326ce5;
+            padding: 6px 15px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .architecture-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 40px;
+            margin-top: 40px;
+            text-align: center;
+        }
+
+        .architecture-title {
+            font-size: 2.5em;
+            font-weight: 800;
+            margin-bottom: 20px;
+            background: linear-gradient(135deg, #326ce5, #1a4fa0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .architecture-diagram {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-top: 30px;
+        }
+
+        .arch-component {
+            background: rgba(50, 108, 229, 0.05);
+            border: 2px solid rgba(50, 108, 229, 0.2);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .arch-component:hover {
+            background: rgba(50, 108, 229, 0.1);
+            border-color: rgba(50, 108, 229, 0.4);
+            transform: translateY(-5px);
+        }
+
+        .arch-icon {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+
+        .arch-title {
+            font-weight: 700;
+            margin-bottom: 10px;
+            color: #326ce5;
+        }
+
+        @media (max-width: 768px) {
+            .concepts-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .concept-card {
+                padding: 20px;
+            }
+            
+            .architecture-diagram {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="k8s-logo">K8s</div>
+            <h1>Kubernetes</h1>
+            <p>An open-source container orchestration platform that automates the deployment, scaling, and management of containerized applications across clusters of machines.</p>
+        </div>
+
+        <div class="concepts-grid">
+            <div class="concept-card cluster" onclick="toggleCard(this)">
+                <div class="concept-header">
+                    <div class="concept-icon">🏗️</div>
+                    <div class="concept-title">
+                        <h3>Cluster</h3>
+                        <div class="concept-subtitle">The foundation of Kubernetes</div>
+                    </div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="concept-description">A set of worker machines (nodes) that run containerized applications managed by Kubernetes</div>
+                <div class="concept-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Components</div>
+                        <div class="detail-content">
+                            <strong>Control Plane:</strong> API Server, etcd, Controller Manager, Scheduler<br>
+                            <strong>Worker Nodes:</strong> kubelet, kube-proxy, Container Runtime
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Key Features</div>
+                        <div class="detail-content">High availability, automatic scaling, self-healing, load distribution across multiple nodes</div>
+                        <div class="use-cases">
+                            <span class="use-case">Multi-node deployment</span>
+                            <span class="use-case">High availability</span>
+                            <span class="use-case">Distributed computing</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card pod" onclick="toggleCard(this)">
+                <div class="concept-header">
+                    <div class="concept-icon">📦</div>
+                    <div class="concept-title">
+                        <h3>Pod</h3>
+                        <div class="concept-subtitle">Smallest deployable unit</div>
+                    </div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="concept-description">The smallest unit that can be deployed and managed by Kubernetes, containing one or more containers</div>
+                <div class="concept-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Characteristics</div>
+                        <div class="detail-content">
+                            • Shares network and storage<br>
+                            • Containers in a pod always run on the same node<br>
+                            • Ephemeral - pods come and go<br>
+                            • Each pod gets its own IP address
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">YAML Example</div>
+                        <div class="yaml-example">apiVersion: v1
+kind: Pod
+metadata:
+  name: my-app
+spec:
+  containers:
+  - name: app
+    image: nginx:1.20
+    ports:
+    - containerPort: 80</div>
+                    </div>
+                    <div class="use-cases">
+                        <span class="use-case">Single application</span>
+                        <span class="use-case">Sidecar pattern</span>
+                        <span class="use-case">Init containers</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card service" onclick="toggleCard(this)">
+                <div class="concept-header">
+                    <div class="concept-icon">🌐</div>
+                    <div class="concept-title">
+                        <h3>Service</h3>
+                        <div class="concept-subtitle">Network abstraction layer</div>
+                    </div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="concept-description">Provides stable network endpoints for accessing a set of pods, enabling service discovery and load balancing</div>
+                <div class="concept-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Service Types</div>
+                        <div class="detail-content">
+                            <strong>ClusterIP:</strong> Internal cluster access only<br>
+                            <strong>NodePort:</strong> Exposes service on each node's IP<br>
+                            <strong>LoadBalancer:</strong> Cloud provider load balancer<br>
+                            <strong>ExternalName:</strong> Maps to external DNS name
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">YAML Example</div>
+                        <div class="yaml-example">apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+spec:
+  selector:
+    app: my-app
+  ports:
+  - port: 80
+    targetPort: 8080
+  type: ClusterIP</div>
+                    </div>
+                    <div class="use-cases">
+                        <span class="use-case">Load balancing</span>
+                        <span class="use-case">Service discovery</span>
+                        <span class="use-case">External access</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card deployment" onclick="toggleCard(this)">
+                <div class="concept-header">
+                    <div class="concept-icon">🚀</div>
+                    <div class="concept-title">
+                        <h3>Deployment</h3>
+                        <div class="concept-subtitle">Declarative pod management</div>
+                    </div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="concept-description">Manages stateless applications by creating and managing ReplicaSets, providing declarative updates and rollback capabilities</div>
+                <div class="concept-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Features</div>
+                        <div class="detail-content">
+                            • Rolling updates and rollbacks<br>
+                            • Scaling up and down<br>
+                            • Self-healing capabilities<br>
+                            • Version history management<br>
+                            • Zero-downtime deployments
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">YAML Example</div>
+                        <div class="yaml-example">apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx:1.20</div>
+                    </div>
+                    <div class="use-cases">
+                        <span class="use-case">Stateless apps</span>
+                        <span class="use-case">Rolling updates</span>
+                        <span class="use-case">Scaling</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card namespace" onclick="toggleCard(this)">
+                <div class="concept-header">
+                    <div class="concept-icon">🏢</div>
+                    <div class="concept-title">
+                        <h3>Namespace</h3>
+                        <div class="concept-subtitle">Virtual cluster separation</div>
+                    </div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="concept-description">Provides virtual clusters within a physical cluster, enabling resource isolation and multi-tenancy</div>
+                <div class="concept-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Default Namespaces</div>
+                        <div class="detail-content">
+                            <strong>default:</strong> Default namespace for objects<br>
+                            <strong>kube-system:</strong> Kubernetes system components<br>
+                            <strong>kube-public:</strong> Public resources<br>
+                            <strong>kube-node-lease:</strong> Node heartbeat information
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Benefits</div>
+                        <div class="detail-content">Resource quotas, access control, name scoping, environment separation (dev/staging/prod)</div>
+                    </div>
+                    <div class="use-cases">
+                        <span class="use-case">Multi-tenancy</span>
+                        <span class="use-case">Environment separation</span>
+                        <span class="use-case">Resource quotas</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card configmap" onclick="toggleCard(this)">
+                <div class="concept-header">
+                    <div class="concept-icon">⚙️</div>
+                    <div class="concept-title">
+                        <h3>ConfigMap</h3>
+                        <div class="concept-subtitle">Configuration data storage</div>
+                    </div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="concept-description">Stores configuration data separately from application code, enabling configuration changes without rebuilding container images</div>
+                <div class="concept-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Usage Patterns</div>
+                        <div class="detail-content">
+                            • Environment variables<br>
+                            • Command-line arguments<br>
+                            • Configuration files<br>
+                            • Volume mounts
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">YAML Example</div>
+                        <div class="yaml-example">apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: app-config
+data:
+  database_url: "postgresql://localhost:5432/mydb"
+  debug_mode: "true"
+  config.yaml: |
+    server:
+      port: 8080
+      host: 0.0.0.0</div>
+                    </div>
+                    <div class="use-cases">
+                        <span class="use-case">App configuration</span>
+                        <span class="use-case">Environment variables</span>
+                        <span class="use-case">Config files</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card ingress" onclick="toggleCard(this)">
+                <div class="concept-header">
+                    <div class="concept-icon">🚪</div>
+                    <div class="concept-title">
+                        <h3>Ingress</h3>
+                        <div class="concept-subtitle">HTTP/HTTPS traffic routing</div>
+                    </div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="concept-description">Manages external access to services, providing HTTP/HTTPS routing, SSL termination, and load balancing</div>
+                <div class="concept-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Features</div>
+                        <div class="detail-content">
+                            • Host and path-based routing<br>
+                            • SSL/TLS termination<br>
+                            • Load balancing<br>
+                            • Name-based virtual hosting<br>
+                            • URL rewriting and redirects
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Popular Controllers</div>
+                        <div class="detail-content">NGINX Ingress, Traefik, HAProxy, Istio Gateway, AWS Load Balancer Controller</div>
+                    </div>
+                    <div class="use-cases">
+                        <span class="use-case">Web applications</span>
+                        <span class="use-case">API gateways</span>
+                        <span class="use-case">SSL termination</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="concept-card volume" onclick="toggleCard(this)">
+                <div class="concept-header">
+                    <div class="concept-icon">💾</div>
+                    <div class="concept-title">
+                        <h3>Volume</h3>
+                        <div class="concept-subtitle">Persistent data storage</div>
+                    </div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="concept-description">Provides persistent storage that outlives individual containers and pods, enabling data persistence and sharing</div>
+                <div class="concept-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Volume Types</div>
+                        <div class="detail-content">
+                            <strong>PersistentVolume (PV):</strong> Cluster-wide storage resource<br>
+                            <strong>PersistentVolumeClaim (PVC):</strong> Request for storage<br>
+                            <strong>Storage Classes:</strong> Dynamic provisioning templates
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Storage Options</div>
+                        <div class="detail-content">Local storage, NFS, cloud storage (EBS, GCE PD, Azure Disk), distributed storage (Ceph, GlusterFS)</div>
+                    </div>
+                    <div class="use-cases">
+                        <span class="use-case">Database storage</span>
+                        <span class="use-case">File sharing</span>
+                        <span class="use-case">Backup storage</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="architecture-section">
+            <h2 class="architecture-title">Kubernetes Architecture</h2>
+            <p style="font-size: 1.2em; color: #666; margin-bottom: 30px;">Understanding the core components and their relationships</p>
+            
+            <div class="architecture-diagram">
+                <div class="arch-component">
+                    <div class="arch-icon">🎯</div>
+                    <div class="arch-title">API Server</div>
+                    <div>Central management component that exposes the Kubernetes API</div>
+                </div>
+                <div class="arch-component">
+                    <div class="arch-icon">🗄️</div>
+                    <div class="arch-title">etcd</div>
+                    <div>Distributed key-value store for cluster state and configuration</div>
+                </div>
+                <div class="arch-component">
+                    <div class="arch-icon">📋</div>
+                    <div class="arch-title">Scheduler</div>
+                    <div>Assigns pods to nodes based on resource requirements</div>
+                </div>
+                <div class="arch-component">
+                    <div class="arch-icon">🎮</div>
+                    <div class="arch-title">Controller Manager</div>
+                    <div>Runs controllers that regulate the state of the cluster</div>
+                </div>
+                <div class="arch-component">
+                    <div class="arch-icon">🤖</div>
+                    <div class="arch-title">kubelet</div>
+                    <div>Agent that runs on each node and manages containers</div>
+                </div>
+                <div class="arch-component">
+                    <div class="arch-icon">🌐</div>
+                    <div class="arch-title">kube-proxy</div>
+                    <div>Network proxy that maintains network rules on nodes</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function toggleCard(element) {
+            // Close all other cards
+            const allCards = document.querySelectorAll('.concept-card');
+            allCards.forEach(card => {
+                if (card !== element) {
+                    card.classList.remove('expanded');
+                }
+            });
+
+            // Toggle current card
+            element.classList.toggle('expanded');
+        }
+
+        // Add smooth scrolling when card expands
+        document.addEventListener('DOMContentLoaded', function() {
+            const cards = document.querySelectorAll('.concept-card');
+            cards.forEach(card => {
+                card.addEventListener('click', function() {
+                    setTimeout(() => {
+                        if (this.classList.contains('expanded')) {
+                            this.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                            });
+                        }
+                    }, 300);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

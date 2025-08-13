@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UV Python Dependency Management Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #8b5cf6 0%, #3b82f6 50%, #06b6d4 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e1b4b 0%, #312e81 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="25" cy="25" r="3" fill="rgba(139,92,246,0.3)"/><circle cx="75" cy="40" r="2" fill="rgba(59,130,246,0.3)"/><circle cx="50" cy="75" r="2.5" fill="rgba(6,182,212,0.3)"/></svg>');
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(45deg, #8b5cf6, #06b6d4);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .uv-icon {
+            width: 70px;
+            height: 70px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 35px;
+            color: white;
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .intro-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #8b5cf6;
+        }
+        
+        .intro-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e1b4b;
+            margin-bottom: 15px;
+        }
+        
+        .intro-text {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .speed-comparison {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .speed-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .speed-tool {
+            font-weight: 600;
+            color: #1e1b4b;
+            margin-bottom: 5px;
+        }
+        
+        .speed-time {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #8b5cf6;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e1b4b;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #8b5cf6, #06b6d4);
+            border-radius: 2px;
+        }
+        
+        .workflow-section {
+            margin-bottom: 50px;
+        }
+        
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .workflow-step {
+            background: linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #8b5cf6;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .workflow-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(139, 92, 246, 0.2);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #8b5cf6;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e1b4b;
+            margin-bottom: 10px;
+        }
+        
+        .step-command {
+            background: #1e1b4b;
+            color: #06b6d4;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .step-command::before {
+            content: '$ ';
+            color: #8b5cf6;
+        }
+        
+        .step-description {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .command-category {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .command-category:hover {
+            border-color: #8b5cf6;
+            transform: translateY(-3px);
+        }
+        
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e1b4b;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .category-icon {
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #8b5cf6, #06b6d4);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .command-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #faf5ff;
+            border-radius: 10px;
+            border-left: 3px solid #8b5cf6;
+        }
+        
+        .command-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .command-code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            color: #1e1b4b;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .command-desc {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+        
+        .comparison-section {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .comparison-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #065f46;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .comparison-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .comparison-tool {
+            font-weight: 600;
+            color: #065f46;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .comparison-command {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            color: #374151;
+            background: #f3f4f6;
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .pyproject-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .pyproject-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .pyproject-example {
+            background: #1e1b4b;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .pyproject-line {
+            margin-bottom: 4px;
+        }
+        
+        .pyproject-section-header {
+            color: #06b6d4;
+            font-weight: bold;
+        }
+        
+        .pyproject-key {
+            color: #8b5cf6;
+        }
+        
+        .pyproject-value {
+            color: #10b981;
+        }
+        
+        .pyproject-comment {
+            color: #94a3b8;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .tips-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tip-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tip-title {
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .tip-text {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .workflow-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="uv-icon">uv</div>
+            <h1>UV Python</h1>
+            <p>Ultra-fast Python Package Management</p>
+        </div>
+        
+        <div class="content">
+            <div class="intro-section">
+                <div class="intro-title">🚀 What is UV?</div>
+                <div class="intro-text">
+                    UV is an extremely fast Python package installer and resolver, written in Rust. It's designed to be a drop-in replacement for pip and pip-tools, with speeds 10-100x faster than traditional tools.
+                </div>
+                <div class="speed-comparison">
+                    <div class="speed-item">
+                        <div class="speed-tool">pip</div>
+                        <div class="speed-time">~45s</div>
+                    </div>
+                    <div class="speed-item">
+                        <div class="speed-tool">poetry</div>
+                        <div class="speed-time">~30s</div>
+                    </div>
+                    <div class="speed-item">
+                        <div class="speed-tool">uv</div>
+                        <div class="speed-time">~1.5s</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workflow-section">
+                <h2 class="section-title">Getting Started with UV</h2>
+                <div class="workflow-grid">
+                    <div class="workflow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Install UV</div>
+                        <div class="step-command">curl -LsSf https://astral.sh/uv/install.sh | sh</div>
+                        <div class="step-description">Install UV using the official installer script</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Create Project</div>
+                        <div class="step-command">uv init my-project</div>
+                        <div class="step-description">Initialize a new Python project with pyproject.toml</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Add Dependencies</div>
+                        <div class="step-command">uv add requests pandas</div>
+                        <div class="step-description">Add packages to your project dependencies</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Create Virtual Environment</div>
+                        <div class="step-command">uv venv</div>
+                        <div class="step-description">Create an isolated Python environment</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">5</div>
+                        <div class="step-title">Install Dependencies</div>
+                        <div class="step-command">uv sync</div>
+                        <div class="step-description">Install all project dependencies from lock file</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">6</div>
+                        <div class="step-title">Run Commands</div>
+                        <div class="step-command">uv run python main.py</div>
+                        <div class="step-description">Execute Python scripts in the project environment</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Essential UV Commands</h2>
+            <div class="commands-grid">
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📦</div>
+                        Project Management
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv init &lt;project-name&gt;</div>
+                        <div class="command-desc">Create new project with pyproject.toml</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv init --lib</div>
+                        <div class="command-desc">Initialize as a library project</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv init --app</div>
+                        <div class="command-desc">Initialize as an application project</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv sync</div>
+                        <div class="command-desc">Install dependencies from lock file</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv lock</div>
+                        <div class="command-desc">Update the dependency lock file</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">➕</div>
+                        Adding Dependencies
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv add requests</div>
+                        <div class="command-desc">Add package to dependencies</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv add --dev pytest</div>
+                        <div class="command-desc">Add development dependency</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv add "django>=4.0"</div>
+                        <div class="command-desc">Add with version constraint</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv add --optional typing numpy</div>
+                        <div class="command-desc">Add to optional dependency group</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv remove requests</div>
+                        <div class="command-desc">Remove package from dependencies</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🐍</div>
+                        Python Environments
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv venv</div>
+                        <div class="command-desc">Create virtual environment</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv venv --python 3.11</div>
+                        <div class="command-desc">Create with specific Python version</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv python list</div>
+                        <div class="command-desc">List available Python versions</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv python install 3.12</div>
+                        <div class="command-desc">Install Python version</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">source .venv/bin/activate</div>
+                        <div class="command-desc">Activate virtual environment</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🏃</div>
+                        Running Code
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv run python script.py</div>
+                        <div class="command-desc">Run Python script in project environment</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv run --with requests python -c "import requests"</div>
+                        <div class="command-desc">Run with additional dependencies</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv run pytest</div>
+                        <div class="command-desc">Run tests using project dependencies</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv run --python 3.11 script.py</div>
+                        <div class="command-desc">Run with specific Python version</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">💾</div>
+                        Package Installation
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv pip install requests</div>
+                        <div class="command-desc">Install package (pip compatibility)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv pip install -r requirements.txt</div>
+                        <div class="command-desc">Install from requirements file</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv pip freeze</div>
+                        <div class="command-desc">List installed packages</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv pip uninstall requests</div>
+                        <div class="command-desc">Uninstall package</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv pip compile requirements.in</div>
+                        <div class="command-desc">Generate pinned requirements.txt</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔍</div>
+                        Information & Tools
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv tree</div>
+                        <div class="command-desc">Show dependency tree</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv show numpy</div>
+                        <div class="command-desc">Show package information</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv cache clean</div>
+                        <div class="command-desc">Clear package cache</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv version</div>
+                        <div class="command-desc">Show UV version</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uv self update</div>
+                        <div class="command-desc">Update UV to latest version</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="comparison-section">
+                <h3 class="comparison-title">📊 UV vs Traditional Tools</h3>
+                <div class="comparison-grid">
+                    <div class="comparison-item">
+                        <div class="comparison-tool">pip + venv</div>
+                        <div class="comparison-command">python -m venv .venv</div>
+                        <div class="comparison-command">pip install -r requirements.txt</div>
+                        <div class="comparison-command">pip freeze > requirements.txt</div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <div class="comparison-tool">Poetry</div>
+                        <div class="comparison-command">poetry init</div>
+                        <div class="comparison-command">poetry add requests</div>
+                        <div class="comparison-command">poetry install</div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <div class="comparison-tool">UV</div>
+                        <div class="comparison-command">uv init</div>
+                        <div class="comparison-command">uv add requests</div>
+                        <div class="comparison-command">uv sync</div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <div class="comparison-tool">Pipenv</div>
+                        <div class="comparison-command">pipenv install</div>
+                        <div class="comparison-command">pipenv install requests</div>
+                        <div class="comparison-command">pipenv shell</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="pyproject-section">
+                <h3 class="pyproject-title">📄 Sample pyproject.toml</h3>
+                <div class="pyproject-example">
+                    <div class="pyproject-line"><span class="pyproject-section-header">[project]</span></div>
+                    <div class="pyproject-line"><span class="pyproject-key">name</span> = <span class="pyproject-value">"my-awesome-app"</span></div>
+                    <div class="pyproject-line"><span class="pyproject-key">version</span> = <span class="pyproject-value">"0.1.0"</span></div>
+                    <div class="pyproject-line"><span class="pyproject-key">description</span> = <span class="pyproject-value">"A sample Python project"</span></div>
+                    <div class="pyproject-line"><span class="pyproject-key">authors</span> = [</div>
+                    <div class="pyproject-line">    {<span class="pyproject-key">name</span> = <span class="pyproject-value">"Your Name"</span>, <span class="pyproject-key">email</span> = <span class="pyproject-value">"you@example.com"</span>}</div>
+                    <div class="pyproject-line">]</div>
+                    <div class="pyproject-line"><span class="pyproject-key">requires-python</span> = <span class="pyproject-value">">=3.8"</span></div>
+                    <div class="pyproject-line"><span class="pyproject-key">dependencies</span> = [</div>
+                    <div class="pyproject-line">    <span class="pyproject-value">"requests>=2.28.0"</span>,</div>
+                    <div class="pyproject-line">    <span class="pyproject-value">"pandas>=1.5.0"</span>,</div>
+                    <div class="pyproject-line">]</div>
+                    <div class="pyproject-line"></div>
+                    <div class="pyproject-line"><span class="pyproject-section-header">[project.optional-dependencies]</span></div>
+                    <div class="pyproject-line"><span class="pyproject-key">dev</span> = [</div>
+                    <div class="pyproject-line">    <span class="pyproject-value">"pytest>=7.0"</span>,</div>
+                    <div class="pyproject-line">    <span class="pyproject-value">"black>=22.0"</span>,</div>
+                    <div class="pyproject-line">    <span class="pyproject-value">"ruff>=0.1.0"</span>,</div>
+                    <div class="pyproject-line">]</div>
+                    <div class="pyproject-line"></div>
+                    <div class="pyproject-line"><span class="pyproject-section-header">[build-system]</span></div>
+                    <div class="pyproject-line"><span class="pyproject-key">requires</span> = [<span class="pyproject-value">"hatchling"</span>]</div>
+                    <div class="pyproject-line"><span class="pyproject-key">build-backend</span> = <span class="pyproject-value">"hatchling.build"</span></div>
+                </div>
+            </div>
+            
+            <div class="tips-section">
+                <h3 class="tips-

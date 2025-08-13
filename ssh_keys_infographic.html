@@ -1,0 +1,860 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSH Keys Guide for Windows and macOS</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #4f46e5 0%, #06b6d4 50%, #10b981 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1f2937 0%, #374151 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><circle cx="20" cy="30" r="3" fill="rgba(79,70,229,0.3)"/><rect x="60" y="20" width="15" height="15" fill="rgba(6,182,212,0.3)"/><polygon points="40,70 50,60 60,70 50,80" fill="rgba(16,185,129,0.3)"/></svg>');
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(45deg, #4f46e5, #10b981);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .ssh-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #4f46e5, #10b981);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .intro-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #4f46e5;
+        }
+        
+        .intro-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 15px;
+        }
+        
+        .intro-text {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .ssh-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .benefit-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .benefit-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .benefit-text {
+            font-weight: 600;
+            color: #1f2937;
+            font-size: 14px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1f2937;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #4f46e5, #10b981);
+            border-radius: 2px;
+        }
+        
+        .os-sections {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 40px;
+            margin-bottom: 50px;
+        }
+        
+        .os-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 3px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .os-section.windows {
+            border-color: #0078d4;
+        }
+        
+        .os-section.macos {
+            border-color: #000000;
+        }
+        
+        .os-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+        
+        .os-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 25px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+        
+        .os-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 25px;
+            color: white;
+        }
+        
+        .os-icon.windows {
+            background: linear-gradient(135deg, #0078d4, #106ebe);
+        }
+        
+        .os-icon.macos {
+            background: linear-gradient(135deg, #000000, #434343);
+        }
+        
+        .os-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1f2937;
+        }
+        
+        .step-list {
+            margin-bottom: 25px;
+        }
+        
+        .step-item {
+            background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 4px solid #4f46e5;
+            transition: all 0.3s ease;
+        }
+        
+        .step-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(79, 70, 229, 0.1);
+        }
+        
+        .step-number {
+            display: inline-block;
+            background: #4f46e5;
+            color: white;
+            width: 25px;
+            height: 25px;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 25px;
+            font-weight: bold;
+            font-size: 12px;
+            margin-right: 10px;
+        }
+        
+        .step-title {
+            font-size: 1rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 8px;
+            display: inline;
+        }
+        
+        .step-command {
+            background: #1f2937;
+            color: #06b6d4;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            margin: 10px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .step-command.terminal::before {
+            content: '$ ';
+            color: #10b981;
+        }
+        
+        .step-command.powershell::before {
+            content: 'PS> ';
+            color: #4f46e5;
+        }
+        
+        .step-description {
+            color: #6b7280;
+            font-size: 13px;
+            line-height: 1.5;
+            margin-top: 8px;
+        }
+        
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .command-category {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .command-category:hover {
+            border-color: #4f46e5;
+            transform: translateY(-3px);
+        }
+        
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .category-icon {
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #4f46e5, #10b981);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .command-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 3px solid #4f46e5;
+        }
+        
+        .command-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .command-code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            color: #1f2937;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .command-desc {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        
+        .security-section {
+            background: linear-gradient(135deg, #fef2f2 0%, #fecaca 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .security-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #991b1b;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .security-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .security-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .security-item-title {
+            font-weight: 600;
+            color: #991b1b;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .security-item-text {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .tips-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #065f46;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tip-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tip-title {
+            font-weight: 600;
+            color: #065f46;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .tip-text {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .os-sections {
+                grid-template-columns: 1fr;
+            }
+            
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="ssh-icon">🔐</div>
+            <h1>SSH Keys</h1>
+            <p>Secure Authentication for Windows & macOS</p>
+        </div>
+        
+        <div class="content">
+            <div class="intro-section">
+                <div class="intro-title">🚀 What are SSH Keys?</div>
+                <div class="intro-text">
+                    SSH keys provide a secure way to authenticate with remote servers without passwords. They use public-key cryptography - you keep a private key secret and share the public key with servers you want to access.
+                </div>
+                <div class="ssh-benefits">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔒</div>
+                        <div class="benefit-text">More Secure</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-text">No Passwords</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🤖</div>
+                        <div class="benefit-text">Automation Ready</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔑</div>
+                        <div class="benefit-text">Single Setup</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">📱</div>
+                        <div class="benefit-text">Git Integration</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Creating SSH Keys by Platform</h2>
+            <div class="os-sections">
+                <div class="os-section windows">
+                    <div class="os-header">
+                        <div class="os-icon windows">🪟</div>
+                        <div class="os-title">Windows</div>
+                    </div>
+                    
+                    <div class="step-list">
+                        <div class="step-item">
+                            <span class="step-number">1</span>
+                            <span class="step-title">Open PowerShell or Command Prompt</span>
+                            <div class="step-command powershell">ssh-keygen -t ed25519 -C "your_email@example.com"</div>
+                            <div class="step-description">Generate a new SSH key using Ed25519 algorithm (recommended)</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">2</span>
+                            <span class="step-title">Choose Key Location</span>
+                            <div class="step-command powershell">Enter file in which to save the key: (Press Enter for default)</div>
+                            <div class="step-description">Default location: C:\Users\YourName\.ssh\id_ed25519</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">3</span>
+                            <span class="step-title">Set Passphrase (Optional)</span>
+                            <div class="step-command powershell">Enter passphrase (empty for no passphrase):</div>
+                            <div class="step-description">Add extra security with a passphrase (recommended)</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">4</span>
+                            <span class="step-title">Start SSH Agent</span>
+                            <div class="step-command powershell">Get-Service -Name ssh-agent | Set-Service -StartupType Manual</div>
+                            <div class="step-command powershell">Start-Service ssh-agent</div>
+                            <div class="step-description">Enable and start the SSH agent service</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">5</span>
+                            <span class="step-title">Add Key to SSH Agent</span>
+                            <div class="step-command powershell">ssh-add C:\Users\YourName\.ssh\id_ed25519</div>
+                            <div class="step-description">Add your private key to the SSH agent</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">6</span>
+                            <span class="step-title">Copy Public Key</span>
+                            <div class="step-command powershell">Get-Content C:\Users\YourName\.ssh\id_ed25519.pub | Set-Clipboard</div>
+                            <div class="step-description">Copy the public key to clipboard for adding to services</div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="os-section macos">
+                    <div class="os-header">
+                        <div class="os-icon macos">🍎</div>
+                        <div class="os-title">macOS</div>
+                    </div>
+                    
+                    <div class="step-list">
+                        <div class="step-item">
+                            <span class="step-number">1</span>
+                            <span class="step-title">Open Terminal</span>
+                            <div class="step-command terminal">ssh-keygen -t ed25519 -C "your_email@example.com"</div>
+                            <div class="step-description">Generate a new SSH key using Ed25519 algorithm</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">2</span>
+                            <span class="step-title">Choose Key Location</span>
+                            <div class="step-command terminal">Enter file in which to save the key: (Press Enter for default)</div>
+                            <div class="step-description">Default location: /Users/yourusername/.ssh/id_ed25519</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">3</span>
+                            <span class="step-title">Set Passphrase (Optional)</span>
+                            <div class="step-command terminal">Enter passphrase (empty for no passphrase):</div>
+                            <div class="step-description">Add extra security with a passphrase (recommended)</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">4</span>
+                            <span class="step-title">Start SSH Agent</span>
+                            <div class="step-command terminal">eval "$(ssh-agent -s)"</div>
+                            <div class="step-description">Start the SSH agent in the background</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">5</span>
+                            <span class="step-title">Configure SSH Config (macOS 10.12.2+)</span>
+                            <div class="step-command terminal">touch ~/.ssh/config</div>
+                            <div class="step-command terminal">echo "Host *\n  AddKeysToAgent yes\n  UseKeychain yes\n  IdentityFile ~/.ssh/id_ed25519" >> ~/.ssh/config</div>
+                            <div class="step-description">Configure SSH to use keychain and auto-add keys</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">6</span>
+                            <span class="step-title">Add Key to SSH Agent & Keychain</span>
+                            <div class="step-command terminal">ssh-add --apple-use-keychain ~/.ssh/id_ed25519</div>
+                            <div class="step-description">Add private key to SSH agent and store passphrase in keychain</div>
+                        </div>
+                        
+                        <div class="step-item">
+                            <span class="step-number">7</span>
+                            <span class="step-title">Copy Public Key</span>
+                            <div class="step-command terminal">pbcopy < ~/.ssh/id_ed25519.pub</div>
+                            <div class="step-description">Copy the public key to clipboard</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Essential SSH Commands</h2>
+            <div class="commands-grid">
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔑</div>
+                        Key Generation
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-keygen -t ed25519 -C "email@example.com"</div>
+                        <div class="command-desc">Generate Ed25519 key (recommended)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-keygen -t rsa -b 4096 -C "email@example.com"</div>
+                        <div class="command-desc">Generate RSA key (legacy compatibility)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-keygen -t ed25519 -f ~/.ssh/custom_key</div>
+                        <div class="command-desc">Generate key with custom filename</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-keygen -y -f ~/.ssh/id_ed25519</div>
+                        <div class="command-desc">Extract public key from private key</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔧</div>
+                        SSH Agent Management
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-add ~/.ssh/id_ed25519</div>
+                        <div class="command-desc">Add key to SSH agent</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-add -l</div>
+                        <div class="command-desc">List keys in SSH agent</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-add -d ~/.ssh/id_ed25519</div>
+                        <div class="command-desc">Remove specific key from agent</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-add -D</div>
+                        <div class="command-desc">Remove all keys from agent</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔍</div>
+                        Key Information
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-keygen -l -f ~/.ssh/id_ed25519.pub</div>
+                        <div class="command-desc">Show key fingerprint</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-keygen -lf ~/.ssh/id_ed25519.pub -E sha256</div>
+                        <div class="command-desc">Show SHA256 fingerprint</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-keygen -lf ~/.ssh/id_ed25519.pub -E md5</div>
+                        <div class="command-desc">Show MD5 fingerprint</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ls -la ~/.ssh/</div>
+                        <div class="command-desc">List all SSH keys</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🌐</div>
+                        Connection & Testing
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh -T git@github.com</div>
+                        <div class="command-desc">Test GitHub SSH connection</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh -T git@gitlab.com</div>
+                        <div class="command-desc">Test GitLab SSH connection</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh -i ~/.ssh/custom_key user@server.com</div>
+                        <div class="command-desc">Connect using specific key</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh -v user@server.com</div>
+                        <div class="command-desc">Connect with verbose output</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📋</div>
+                        Copy Commands
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">cat ~/.ssh/id_ed25519.pub</div>
+                        <div class="command-desc">Display public key (Linux/macOS)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">pbcopy < ~/.ssh/id_ed25519.pub</div>
+                        <div class="command-desc">Copy to clipboard (macOS)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">Get-Content ~/.ssh/id_ed25519.pub | Set-Clipboard</div>
+                        <div class="command-desc">Copy to clipboard (Windows PowerShell)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">type %USERPROFILE%\.ssh\id_ed25519.pub</div>
+                        <div class="command-desc">Display public key (Windows CMD)</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔄</div>
+                        Key Management
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-keygen -p -f ~/.ssh/id_ed25519</div>
+                        <div class="command-desc">Change key passphrase</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">chmod 600 ~/.ssh/id_ed25519</div>
+                        <div class="command-desc">Set correct permissions for private key</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">chmod 644 ~/.ssh/id_ed25519.pub</div>
+                        <div class="command-desc">Set correct permissions for public key</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh-copy-id user@server.com</div>
+                        <div class="command-desc">Copy public key to remote server</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="security-section">
+                <h3 class="security-title">🔒 Security Best Practices</h3>
+                <div class="security-grid">
+                    <div class="security-item">
+                        <div class="security-item-title">Use Ed25519 Keys</div>
+                        <div class="security-item-text">Ed25519 provides better security and performance than RSA. Use it unless you need legacy compatibility.</div>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-item-title">Always Use Passphrases</div>
+                        <div class="security-item-text">Protect your private key with a strong passphrase. Even if stolen, the key is useless without it.</div>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-item-title">Protect Private Keys</div>
+                        <div class="security-item-text">Never share private keys. Keep them on your local machine with proper file permissions (600).</div>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-item-title">Regular Key Rotation</div>
+                        <div class="security-item-text">Generate new keys periodically and remove old ones from servers and services.</div>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-item-title">Use SSH Agent</div>
+                        <div class="security-item-text">SSH agent securely stores decrypted keys in memory, so you don't type passphrases repeatedly.</div>
+                    </div>
+                    
+                    <div class="security-item">
+                        <div class="security-item-title">Backup Your Keys</div>
+                        <div class="security-item-text">Keep secure backups of your private keys. Loss means losing access to all connected services.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tips-section">
+                <h3 class="tips-title">💡 Pro Tips & Common Use Cases</h3>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <div class="tip-title">GitHub/GitLab Setup</div>
+                        <div class="tip-text">Add your public key to GitHub/GitLab SSH settings to push/pull repositories without passwords</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Multiple Keys for Different Services</div>
+                        <div class="tip-text">Create separate keys for different services (work, personal, servers) for better security isolation</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">SSH Config File</div>
+                        <div class="tip-text">Use ~/.ssh/config to define aliases and default settings for different hosts and keys</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Test Before Committing</div>
+                        <div class="tip-text">Always test SSH connections with ssh -T before using them for actual work</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">WSL on Windows</div>
+                        <div class="tip-text">If using WSL, you can share SSH keys between Windows and Linux or keep them separate</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Key Fingerprint Verification</div>
+                        <div class="tip-text">Always verify server fingerprints when connecting to new hosts to prevent man-in-the-middle attacks</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Automating with CI/CD</div>
+                        <div class="tip-text">Use SSH keys (without passphrases) for automated deployments and CI/CD pipelines</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Emergency Access</div>
+                        <div class="tip-text">Keep a backup authentication method in case SSH keys are lost or corrupted</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

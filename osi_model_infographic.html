@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>OSI Model Interactive Infographic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .header h1 {
+            font-size: 3em;
+            font-weight: 800;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.2em;
+            color: #666;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .osi-stack {
+            display: flex;
+            flex-direction: column;
+            max-width: 800px;
+            margin: 0 auto;
+            gap: 3px;
+        }
+
+        .layer {
+            background: white;
+            padding: 25px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid transparent;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .layer::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            transition: all 0.3s ease;
+        }
+
+        .layer:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .layer.expanded {
+            transform: scale(1.02);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        /* Layer-specific colors */
+        .layer-7::before { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .layer-6::before { background: linear-gradient(135deg, #feca57, #ff9ff3); }
+        .layer-5::before { background: linear-gradient(135deg, #48dbfb, #0abde3); }
+        .layer-4::before { background: linear-gradient(135deg, #1dd1a1, #55a3ff); }
+        .layer-3::before { background: linear-gradient(135deg, #ffeaa7, #fab1a0); }
+        .layer-2::before { background: linear-gradient(135deg, #fd79a8, #fdcb6e); }
+        .layer-1::before { background: linear-gradient(135deg, #6c5ce7, #a29bfe); }
+
+        .layer-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 15px;
+        }
+
+        .layer-number {
+            font-size: 2.5em;
+            font-weight: 900;
+            opacity: 0.3;
+            min-width: 60px;
+        }
+
+        .layer-name {
+            font-size: 1.8em;
+            font-weight: 700;
+            flex-grow: 1;
+            margin-left: 20px;
+        }
+
+        .expand-icon {
+            font-size: 1.5em;
+            transition: transform 0.3s ease;
+            opacity: 0.6;
+        }
+
+        .layer.expanded .expand-icon {
+            transform: rotate(45deg);
+        }
+
+        .layer-description {
+            font-size: 1.1em;
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        .layer-details {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s ease-out;
+        }
+
+        .layer.expanded .layer-details {
+            max-height: 500px;
+        }
+
+        .detail-section {
+            margin: 20px 0;
+        }
+
+        .detail-title {
+            font-weight: 700;
+            color: #444;
+            margin-bottom: 8px;
+            font-size: 1.1em;
+        }
+
+        .detail-content {
+            color: #666;
+            line-height: 1.5;
+        }
+
+        .protocols {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .protocol {
+            background: rgba(102, 126, 234, 0.1);
+            color: #667eea;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .mnemonic {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .mnemonic h3 {
+            margin-bottom: 10px;
+            font-size: 1.3em;
+        }
+
+        .mnemonic-phrase {
+            font-size: 1.1em;
+            font-weight: 600;
+            letter-spacing: 1px;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px;
+                margin: 10px;
+            }
+            
+            .header h1 {
+                font-size: 2.2em;
+            }
+            
+            .layer {
+                padding: 20px;
+            }
+            
+            .layer-number {
+                font-size: 2em;
+                min-width: 50px;
+            }
+            
+            .layer-name {
+                font-size: 1.4em;
+                margin-left: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>OSI Model</h1>
+            <p>The Open Systems Interconnection model is a conceptual framework that standardizes network communication into seven distinct layers. Click on each layer to explore its function, protocols, and real-world examples.</p>
+        </div>
+
+        <div class="osi-stack">
+            <div class="layer layer-7" onclick="toggleLayer(this)">
+                <div class="layer-header">
+                    <div class="layer-number">7</div>
+                    <div class="layer-name">Application Layer</div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="layer-description">Network services directly accessible to end-users</div>
+                <div class="layer-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Function</div>
+                        <div class="detail-content">Provides network services directly to applications and end-users. Handles user authentication, data formatting, and application-specific protocols.</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Common Protocols</div>
+                        <div class="protocols">
+                            <span class="protocol">HTTP/HTTPS</span>
+                            <span class="protocol">FTP</span>
+                            <span class="protocol">SMTP</span>
+                            <span class="protocol">DNS</span>
+                            <span class="protocol">SNMP</span>
+                            <span class="protocol">Telnet</span>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Examples</div>
+                        <div class="detail-content">Web browsers, email clients, file transfer programs, remote login applications</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layer layer-6" onclick="toggleLayer(this)">
+                <div class="layer-header">
+                    <div class="layer-number">6</div>
+                    <div class="layer-name">Presentation Layer</div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="layer-description">Data translation, encryption, and compression</div>
+                <div class="layer-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Function</div>
+                        <div class="detail-content">Transforms data between application and network formats. Handles encryption/decryption, compression/decompression, and character encoding.</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Common Protocols</div>
+                        <div class="protocols">
+                            <span class="protocol">SSL/TLS</span>
+                            <span class="protocol">JPEG</span>
+                            <span class="protocol">GIF</span>
+                            <span class="protocol">ASCII</span>
+                            <span class="protocol">EBCDIC</span>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Examples</div>
+                        <div class="detail-content">Data encryption, image compression, character set conversion, data formatting</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layer layer-5" onclick="toggleLayer(this)">
+                <div class="layer-header">
+                    <div class="layer-number">5</div>
+                    <div class="layer-name">Session Layer</div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="layer-description">Establishes, manages, and terminates connections</div>
+                <div class="layer-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Function</div>
+                        <div class="detail-content">Manages communication sessions between applications. Controls dialogues and connections, handles session checkpoints and recovery.</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Common Protocols</div>
+                        <div class="protocols">
+                            <span class="protocol">NetBIOS</span>
+                            <span class="protocol">RPC</span>
+                            <span class="protocol">SQL</span>
+                            <span class="protocol">NFS</span>
+                            <span class="protocol">SMB</span>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Examples</div>
+                        <div class="detail-content">Session establishment, authentication, session recovery, dialogue control</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layer layer-4" onclick="toggleLayer(this)">
+                <div class="layer-header">
+                    <div class="layer-number">4</div>
+                    <div class="layer-name">Transport Layer</div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="layer-description">Reliable data delivery and error recovery</div>
+                <div class="layer-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Function</div>
+                        <div class="detail-content">Provides reliable data transfer between end systems. Handles error detection, recovery, flow control, and segmentation.</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Common Protocols</div>
+                        <div class="protocols">
+                            <span class="protocol">TCP</span>
+                            <span class="protocol">UDP</span>
+                            <span class="protocol">SPX</span>
+                            <span class="protocol">SCTP</span>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Examples</div>
+                        <div class="detail-content">Port addressing, data segmentation, error correction, flow control</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layer layer-3" onclick="toggleLayer(this)">
+                <div class="layer-header">
+                    <div class="layer-number">3</div>
+                    <div class="layer-name">Network Layer</div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="layer-description">Routing and logical addressing</div>
+                <div class="layer-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Function</div>
+                        <div class="detail-content">Routes data packets between different networks. Handles logical addressing, path determination, and packet forwarding.</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Common Protocols</div>
+                        <div class="protocols">
+                            <span class="protocol">IP</span>
+                            <span class="protocol">ICMP</span>
+                            <span class="protocol">OSPF</span>
+                            <span class="protocol">RIP</span>
+                            <span class="protocol">BGP</span>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Examples</div>
+                        <div class="detail-content">IP addressing, routing tables, packet forwarding, routers</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layer layer-2" onclick="toggleLayer(this)">
+                <div class="layer-header">
+                    <div class="layer-number">2</div>
+                    <div class="layer-name">Data Link Layer</div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="layer-description">Node-to-node data transfer and error detection</div>
+                <div class="layer-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Function</div>
+                        <div class="detail-content">Provides node-to-node data transfer and error detection/correction. Handles MAC addressing and frame synchronization.</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Common Protocols</div>
+                        <div class="protocols">
+                            <span class="protocol">Ethernet</span>
+                            <span class="protocol">Wi-Fi</span>
+                            <span class="protocol">PPP</span>
+                            <span class="protocol">ATM</span>
+                            <span class="protocol">Frame Relay</span>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Examples</div>
+                        <div class="detail-content">MAC addresses, switches, bridges, network interface cards</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="layer layer-1" onclick="toggleLayer(this)">
+                <div class="layer-header">
+                    <div class="layer-number">1</div>
+                    <div class="layer-name">Physical Layer</div>
+                    <div class="expand-icon">+</div>
+                </div>
+                <div class="layer-description">Physical transmission of raw data bits</div>
+                <div class="layer-details">
+                    <div class="detail-section">
+                        <div class="detail-title">Function</div>
+                        <div class="detail-content">Transmits raw bit streams over physical medium. Defines electrical, mechanical, and procedural specifications.</div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Components</div>
+                        <div class="protocols">
+                            <span class="protocol">Cables</span>
+                            <span class="protocol">Hubs</span>
+                            <span class="protocol">Repeaters</span>
+                            <span class="protocol">Modems</span>
+                            <span class="protocol">Radio Waves</span>
+                        </div>
+                    </div>
+                    <div class="detail-section">
+                        <div class="detail-title">Examples</div>
+                        <div class="detail-content">Fiber optic cables, copper wires, radio frequencies, voltage levels</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="mnemonic">
+            <h3>Memory Aid</h3>
+            <div class="mnemonic-phrase">"Please Do Not Throw Sausage Pizza Away"</div>
+            <p style="margin-top: 10px; opacity: 0.9;">Physical → Data Link → Network → Transport → Session → Presentation → Application</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleLayer(element) {
+            // Close all other layers
+            const allLayers = document.querySelectorAll('.layer');
+            allLayers.forEach(layer => {
+                if (layer !== element) {
+                    layer.classList.remove('expanded');
+                }
+            });
+
+            // Toggle current layer
+            element.classList.toggle('expanded');
+        }
+
+        // Add smooth scrolling when layer expands
+        document.addEventListener('DOMContentLoaded', function() {
+            const layers = document.querySelectorAll('.layer');
+            layers.forEach(layer => {
+                layer.addEventListener('click', function() {
+                    setTimeout(() => {
+                        if (this.classList.contains('expanded')) {
+                            this.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                            });
+                        }
+                    }, 200);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

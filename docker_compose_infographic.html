@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Docker Compose Commands Reference Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="15" y="20" width="20" height="15" fill="rgba(34,197,94,0.3)"/><rect x="40" y="30" width="20" height="15" fill="rgba(59,130,246,0.3)"/><rect x="65" y="25" width="20" height="15" fill="rgba(168,85,247,0.3)"/></svg>');
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(45deg, #22c55e, #3b82f6);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .compose-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #22c55e, #3b82f6);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .intro-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #22c55e;
+        }
+        
+        .intro-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 15px;
+        }
+        
+        .intro-text {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .compose-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .benefit-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .benefit-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .benefit-text {
+            font-weight: 600;
+            color: #0f172a;
+            font-size: 14px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #0f172a;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #22c55e, #3b82f6);
+            border-radius: 2px;
+        }
+        
+        .workflow-section {
+            margin-bottom: 50px;
+        }
+        
+        .workflow-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .workflow-step {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #22c55e;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .workflow-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(34, 197, 94, 0.2);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #22c55e;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 10px;
+        }
+        
+        .step-command {
+            background: #0f172a;
+            color: #22c55e;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            position: relative;
+            overflow-x: auto;
+        }
+        
+        .step-command::before {
+            content: '$ ';
+            color: #3b82f6;
+        }
+        
+        .step-description {
+            color: #065f46;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .command-category {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .command-category:hover {
+            border-color: #22c55e;
+            transform: translateY(-3px);
+        }
+        
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #0f172a;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .category-icon {
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #22c55e, #3b82f6);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .command-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 3px solid #22c55e;
+        }
+        
+        .command-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .command-code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            color: #0f172a;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .command-desc {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        
+        .yaml-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .yaml-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .yaml-example {
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 25px;
+            border-radius: 10px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-x: auto;
+        }
+        
+        .yaml-line {
+            margin-bottom: 4px;
+        }
+        
+        .yaml-key {
+            color: #22c55e;
+        }
+        
+        .yaml-value {
+            color: #3b82f6;
+        }
+        
+        .yaml-comment {
+            color: #94a3b8;
+        }
+        
+        .yaml-string {
+            color: #fbbf24;
+        }
+        
+        .examples-section {
+            background: linear-gradient(135deg, #e0f2fe 0%, #b3e5fc 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .examples-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #0c4a6e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .example-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .example-title {
+            font-weight: 600;
+            color: #0c4a6e;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .example-command {
+            background: #0f172a;
+            color: #22c55e;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            margin-bottom: 8px;
+            overflow-x: auto;
+        }
+        
+        .example-command::before {
+            content: '$ ';
+            color: #3b82f6;
+        }
+        
+        .example-desc {
+            font-size: 12px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .tips-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #581c87;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tip-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tip-title {
+            font-weight: 600;
+            color: #581c87;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .tip-text {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .workflow-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="compose-icon">📦</div>
+            <h1>Docker Compose</h1>
+            <p>Multi-Container Application Management</p>
+        </div>
+        
+        <div class="content">
+            <div class="intro-section">
+                <div class="intro-title">🚀 What is Docker Compose?</div>
+                <div class="intro-text">
+                    Docker Compose is a tool for defining and running multi-container Docker applications. With Compose, you use a YAML file to configure your application's services, networks, and volumes. Then, with a single command, you create and start all the services from your configuration.
+                </div>
+                <div class="compose-benefits">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">📋</div>
+                        <div class="benefit-text">Single Config</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔄</div>
+                        <div class="benefit-text">Reproducible</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-text">One Command</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🌐</div>
+                        <div class="benefit-text">Networking</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">📊</div>
+                        <div class="benefit-text">Scaling</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="workflow-section">
+                <h2 class="section-title">Basic Docker Compose Workflow</h2>
+                <div class="workflow-grid">
+                    <div class="workflow-step">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Create docker-compose.yml</div>
+                        <div class="step-command">touch docker-compose.yml</div>
+                        <div class="step-description">Define your application services in YAML format</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Start Services</div>
+                        <div class="step-command">docker-compose up</div>
+                        <div class="step-description">Create and start all services defined in compose file</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">View Running Services</div>
+                        <div class="step-command">docker-compose ps</div>
+                        <div class="step-description">List all containers managed by compose</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">View Logs</div>
+                        <div class="step-command">docker-compose logs</div>
+                        <div class="step-description">Display logs from all services</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">5</div>
+                        <div class="step-title">Scale Services</div>
+                        <div class="step-command">docker-compose up --scale web=3</div>
+                        <div class="step-description">Scale specific service to multiple instances</div>
+                    </div>
+                    
+                    <div class="workflow-step">
+                        <div class="step-number">6</div>
+                        <div class="step-title">Stop Services</div>
+                        <div class="step-command">docker-compose down</div>
+                        <div class="step-description">Stop and remove containers, networks, and volumes</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Essential Docker Compose Commands</h2>
+            <div class="commands-grid">
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🚀</div>
+                        Basic Operations
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose up</div>
+                        <div class="command-desc">Create and start all services</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose up -d</div>
+                        <div class="command-desc">Start services in detached mode</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose down</div>
+                        <div class="command-desc">Stop and remove containers, networks</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose restart</div>
+                        <div class="command-desc">Restart all services</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose stop</div>
+                        <div class="command-desc">Stop services without removing</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose start</div>
+                        <div class="command-desc">Start existing stopped services</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔧</div>
+                        Service Management
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose ps</div>
+                        <div class="command-desc">List running containers</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose ps -a</div>
+                        <div class="command-desc">List all containers (running and stopped)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose top</div>
+                        <div class="command-desc">Display running processes</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose pause</div>
+                        <div class="command-desc">Pause all services</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose unpause</div>
+                        <div class="command-desc">Unpause all services</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose kill</div>
+                        <div class="command-desc">Force stop services</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📊</div>
+                        Monitoring & Logs
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose logs</div>
+                        <div class="command-desc">View output from all services</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose logs -f</div>
+                        <div class="command-desc">Follow log output in real-time</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose logs web</div>
+                        <div class="command-desc">View logs for specific service</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose logs --tail=50</div>
+                        <div class="command-desc">Show last 50 log lines</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose events</div>
+                        <div class="command-desc">Stream container events</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose port web 80</div>
+                        <div class="command-desc">Show public port for service port</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🏗️</div>
+                        Building & Images
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose build</div>
+                        <div class="command-desc">Build or rebuild services</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose build --no-cache</div>
+                        <div class="command-desc">Build without using cache</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose up --build</div>
+                        <div class="command-desc">Build images before starting</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose pull</div>
+                        <div class="command-desc">Pull latest images for services</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose push</div>
+                        <div class="command-desc">Push service images to registry</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose images</div>
+                        <div class="command-desc">List images used by services</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">⚡</div>
+                        Execution & Scaling
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose exec web bash</div>
+                        <div class="command-desc">Execute command in running service</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose run web python manage.py migrate</div>
+                        <div class="command-desc">Run one-time command in new container</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose up --scale web=3</div>
+                        <div class="command-desc">Scale service to 3 instances</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose run --rm web test</div>
+                        <div class="command-desc">Run command and remove container</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose exec -T web cat /etc/hosts</div>
+                        <div class="command-desc">Execute without TTY allocation</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose run --no-deps web test</div>
+                        <div class="command-desc">Run without starting linked services</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🧹</div>
+                        Cleanup & Validation
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose down -v</div>
+                        <div class="command-desc">Remove containers, networks, and volumes</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose down --rmi all</div>
+                        <div class="command-desc">Remove containers and all images</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose rm</div>
+                        <div class="command-desc">Remove stopped containers</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose config</div>
+                        <div class="command-desc">Validate and view compose file</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose config --services</div>
+                        <div class="command-desc">List all services</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">docker-compose config --volumes</div>
+                        <div class="command-desc">List all volumes</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="yaml-section">
+                <h3 class="yaml-title">📄 Sample docker-compose.yml</h3>
+                <div class="yaml-example">
+                    <div class="yaml-line"></div>
+                    <div class="yaml-line">  <span class="yaml-key">redis:</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">image:</span> <span class="yaml-string">redis:alpine</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">ports:</span></div>
+                    <div class="yaml-line">      - <span class="yaml-string">"6379:6379"</span></div>
+                    <div class="yaml-line"></div>
+                    <div class="yaml-line"><span class="yaml-key">volumes:</span></div>
+                    <div class="yaml-line">  <span class="yaml-key">postgres_data:</span></div>
+                    <div class="yaml-line"></div>
+                    <div class="yaml-line"><span class="yaml-key">networks:</span></div>
+                    <div class="yaml-line">  <span class="yaml-key">default:</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">driver:</span> <span class="yaml-value">bridge</span></div>
+                </div>
+            </div>
+            
+            <div class="examples-section">
+                <h3 class="examples-title">💡 Common Use Cases & Examples</h3>
+                <div class="examples-grid">
+                    <div class="example-item">
+                        <div class="example-title">Start Development Environment</div>
+                        <div class="example-command">docker-compose up -d</div>
+                        <div class="example-desc">Start all services in background for development</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Rebuild After Code Changes</div>
+                        <div class="example-command">docker-compose up --build</div>
+                        <div class="example-desc">Rebuild images and start services</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Run Database Migrations</div>
+                        <div class="example-command">docker-compose exec web python manage.py migrate</div>
+                        <div class="example-desc">Execute Django migrations in web container</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Scale Web Service</div>
+                        <div class="example-command">docker-compose up --scale web=5 -d</div>
+                        <div class="example-desc">Run 5 instances of web service</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">View Application Logs</div>
+                        <div class="example-command">docker-compose logs -f web</div>
+                        <div class="example-desc">Follow web service logs in real-time</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Run Tests</div>
+                        <div class="example-command">docker-compose run --rm web pytest</div>
+                        <div class="example-desc">Run tests and remove container afterwards</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Access Database Console</div>
+                        <div class="example-command">docker-compose exec db psql -U postgres myapp</div>
+                        <div class="example-desc">Connect to PostgreSQL database</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Reset Environment</div>
+                        <div class="example-command">docker-compose down -v && docker-compose up</div>
+                        <div class="example-desc">Remove volumes and restart fresh</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Check Service Health</div>
+                        <div class="example-command">docker-compose ps</div>
+                        <div class="example-desc">View status of all services</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Pull Latest Images</div>
+                        <div class="example-command">docker-compose pull && docker-compose up -d</div>
+                        <div class="example-desc">Update to latest images and restart</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Override for Production</div>
+                        <div class="example-command">docker-compose -f docker-compose.yml -f docker-compose.prod.yml up</div>
+                        <div class="example-desc">Use production overrides</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Backup Database</div>
+                        <div class="example-command">docker-compose exec db pg_dump -U postgres myapp > backup.sql</div>
+                        <div class="example-desc">Create database backup</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tips-section">
+                <h3 class="tips-title">💡 Docker Compose Best Practices</h3>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <div class="tip-title">Use Environment Files</div>
+                        <div class="tip-text">Store environment variables in .env files instead of hardcoding in compose files</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Override Files for Environments</div>
+                        <div class="tip-text">Use docker-compose.override.yml for development and separate files for production</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Named Volumes for Data</div>
+                        <div class="tip-text">Use named volumes for persistent data instead of bind mounts in production</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Health Checks</div>
+                        <div class="tip-text">Add healthcheck configurations to monitor service status automatically</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Depends_on for Startup Order</div>
+                        <div class="tip-text">Use depends_on to control service startup order, but implement proper health checks</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Multi-stage Builds</div>
+                        <div class="tip-text">Use multi-stage Dockerfiles to keep production images small and secure</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Resource Limits</div>
+                        <div class="tip-text">Set memory and CPU limits to prevent services from consuming all resources</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Logging Configuration</div>
+                        <div class="tip-text">Configure logging drivers to manage log file sizes and rotation</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Security Best Practices</div>
+                        <div class="tip-text">Don't run containers as root, use secrets for sensitive data, scan images for vulnerabilities</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Version Pinning</div>
+                        <div class="tip-text">Pin specific image versions in production to ensure reproducible deployments</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Network Isolation</div>
+                        <div class="tip-text">Use custom networks to isolate services and control communication between containers</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Regular Cleanup</div>
+                        <div class="tip-text">Regularly run docker system prune to clean up unused containers, networks, and images</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html><span class="yaml-key">version:</span> <span class="yaml-string">'3.8'</span></div>
+                    <div class="yaml-line"></div>
+                    <div class="yaml-line"><span class="yaml-key">services:</span></div>
+                    <div class="yaml-line">  <span class="yaml-key">web:</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">build:</span> <span class="yaml-value">.</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">ports:</span></div>
+                    <div class="yaml-line">      - <span class="yaml-string">"8000:8000"</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">volumes:</span></div>
+                    <div class="yaml-line">      - <span class="yaml-value">.</span>:<span class="yaml-string">/app</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">environment:</span></div>
+                    <div class="yaml-line">      - <span class="yaml-value">DEBUG=1</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">depends_on:</span></div>
+                    <div class="yaml-line">      - <span class="yaml-value">db</span></div>
+                    <div class="yaml-line"></div>
+                    <div class="yaml-line">  <span class="yaml-key">db:</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">image:</span> <span class="yaml-string">postgres:13</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">volumes:</span></div>
+                    <div class="yaml-line">      - <span class="yaml-value">postgres_data</span>:<span class="yaml-string">/var/lib/postgresql/data/</span></div>
+                    <div class="yaml-line">    <span class="yaml-key">environment:</span></div>
+                    <div class="yaml-line">      - <span class="yaml-value">POSTGRES_DB=myapp</span></div>
+                    <div class="yaml-line">      - <span class="yaml-value">POSTGRES_USER=postgres</span></div>
+                    <div class="yaml-line">      - <span class="yaml-value">POSTGRES_PASSWORD=postgres</span></div>
+                    <div class="yaml-line">

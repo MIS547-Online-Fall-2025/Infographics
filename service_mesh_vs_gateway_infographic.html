@@ -1,0 +1,871 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Service Mesh vs API Gateway</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+            min-height: 100vh;
+            color: #333;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 25px;
+            padding: 40px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+
+        .header h1 {
+            font-size: 3.5em;
+            font-weight: 900;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 15px;
+        }
+
+        .vs-icon {
+            font-size: 2em;
+            margin: 0 20px;
+            color: #764ba2;
+            font-weight: bold;
+        }
+
+        .header p {
+            font-size: 1.3em;
+            color: #666;
+            max-width: 800px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .comparison-layout {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            gap: 30px;
+            margin-bottom: 40px;
+            align-items: start;
+        }
+
+        .architecture-section {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .architecture-section:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15);
+        }
+
+        .section-header {
+            text-align: center;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .section-header::before {
+            content: '';
+            position: absolute;
+            top: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 5px;
+            border-radius: 3px;
+        }
+
+        .service-mesh .section-header::before {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .api-gateway .section-header::before {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+        }
+
+        .section-icon {
+            width: 80px;
+            height: 80px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.5em;
+            color: white;
+            margin: 0 auto 20px;
+        }
+
+        .service-mesh .section-icon {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .api-gateway .section-icon {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+        }
+
+        .section-title {
+            font-size: 2.2em;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .service-mesh .section-title {
+            color: #4facfe;
+        }
+
+        .api-gateway .section-title {
+            color: #fa709a;
+        }
+
+        .section-subtitle {
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 20px;
+        }
+
+        .diagram {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .diagram::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .service-mesh .diagram::before {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .api-gateway .diagram::before {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+        }
+
+        .mesh-diagram {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+            text-align: center;
+        }
+
+        .service-box {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .service-box:hover {
+            border-color: #4facfe;
+            transform: translateY(-2px);
+        }
+
+        .service-name {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+        }
+
+        .sidecar {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+            color: white;
+            padding: 4px 8px;
+            border-radius: 5px;
+            font-size: 0.8em;
+            display: inline-block;
+        }
+
+        .gateway-diagram {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .gateway-box {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            text-align: center;
+            font-weight: 600;
+            width: 100%;
+            max-width: 300px;
+        }
+
+        .services-row {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .backend-service {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+            min-width: 100px;
+        }
+
+        .divider {
+            width: 2px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            border-radius: 1px;
+            position: relative;
+        }
+
+        .divider::before {
+            content: 'VS';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 15px;
+            border-radius: 50%;
+            font-weight: 800;
+            font-size: 1.2em;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .features-section {
+            margin-top: 30px;
+        }
+
+        .feature-category {
+            margin-bottom: 25px;
+        }
+
+        .category-title {
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 1.2em;
+            display: flex;
+            align-items: center;
+        }
+
+        .category-icon {
+            margin-right: 10px;
+            font-size: 1.3em;
+        }
+
+        .feature-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .feature-item {
+            display: flex;
+            align-items: center;
+            padding: 10px 15px;
+            background: rgba(255, 255, 255, 0.7);
+            border-radius: 10px;
+            transition: all 0.2s ease;
+        }
+
+        .feature-item:hover {
+            background: rgba(255, 255, 255, 0.9);
+            transform: translateX(5px);
+        }
+
+        .feature-icon {
+            margin-right: 10px;
+            font-size: 1.1em;
+        }
+
+        .comparison-table {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .table-title {
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: 800;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 2px;
+            background: #e9ecef;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .grid-header {
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            color: white;
+            padding: 20px;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .grid-cell {
+            background: white;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .grid-aspect {
+            background: #f8f9fa;
+            padding: 20px;
+            font-weight: 600;
+            color: #495057;
+        }
+
+        .pro-icon {
+            color: #28a745;
+        }
+
+        .con-icon {
+            color: #dc3545;
+        }
+
+        .neutral-icon {
+            color: #ffc107;
+        }
+
+        .decision-matrix {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(15px);
+            border-radius: 20px;
+            padding: 30px;
+            margin-top: 30px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        .decision-title {
+            text-align: center;
+            font-size: 2.2em;
+            font-weight: 800;
+            margin-bottom: 30px;
+            background: linear-gradient(135deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .decision-cards {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 25px;
+        }
+
+        .decision-card {
+            border-radius: 15px;
+            padding: 25px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .decision-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+        }
+
+        .choose-mesh {
+            background: rgba(79, 172, 254, 0.05);
+            border: 2px solid rgba(79, 172, 254, 0.2);
+        }
+
+        .choose-mesh::before {
+            background: linear-gradient(135deg, #4facfe, #00f2fe);
+        }
+
+        .choose-gateway {
+            background: rgba(250, 112, 154, 0.05);
+            border: 2px solid rgba(250, 112, 154, 0.2);
+        }
+
+        .choose-gateway::before {
+            background: linear-gradient(135deg, #fa709a, #fee140);
+        }
+
+        .decision-card h3 {
+            font-size: 1.5em;
+            font-weight: 700;
+            margin-bottom: 15px;
+        }
+
+        .choose-mesh h3 {
+            color: #4facfe;
+        }
+
+        .choose-gateway h3 {
+            color: #fa709a;
+        }
+
+        .use-case {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+            padding: 8px 0;
+        }
+
+        .use-case-icon {
+            margin-right: 10px;
+            font-size: 1.2em;
+        }
+
+        @media (max-width: 1200px) {
+            .comparison-layout {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .divider {
+                width: 100%;
+                height: 2px;
+                margin: 20px 0;
+            }
+            
+            .divider::before {
+                position: static;
+                transform: none;
+                margin: -30px auto 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5em;
+            }
+            
+            .mesh-diagram {
+                grid-template-columns: 1fr;
+            }
+            
+            .services-row {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .decision-cards {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Service Mesh <span class="vs-icon">vs</span> API Gateway</h1>
+            <p>Understanding the differences between service mesh and API gateway architectures for microservices communication, security, and management</p>
+        </div>
+
+        <div class="comparison-layout">
+            <div class="architecture-section service-mesh">
+                <div class="section-header">
+                    <div class="section-icon">🕸️</div>
+                    <h2 class="section-title">Service Mesh</h2>
+                    <p class="section-subtitle">Infrastructure layer for service-to-service communication</p>
+                </div>
+
+                <div class="diagram">
+                    <div class="mesh-diagram">
+                        <div class="service-box">
+                            <div class="service-name">User Service</div>
+                            <div class="sidecar">Sidecar</div>
+                        </div>
+                        <div class="service-box">
+                            <div class="service-name">Order Service</div>
+                            <div class="sidecar">Sidecar</div>
+                        </div>
+                        <div class="service-box">
+                            <div class="service-name">Payment Service</div>
+                            <div class="sidecar">Sidecar</div>
+                        </div>
+                        <div class="service-box">
+                            <div class="service-name">Inventory Service</div>
+                            <div class="sidecar">Sidecar</div>
+                        </div>
+                        <div class="service-box">
+                            <div class="service-name">Notification Service</div>
+                            <div class="sidecar">Sidecar</div>
+                        </div>
+                        <div class="service-box">
+                            <div class="service-name">Analytics Service</div>
+                            <div class="sidecar">Sidecar</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="features-section">
+                    <div class="feature-category">
+                        <div class="category-title">
+                            <span class="category-icon">🔒</span>
+                            Security Features
+                        </div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Mutual TLS (mTLS) between services
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Service-to-service authentication
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Fine-grained authorization policies
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-category">
+                        <div class="category-title">
+                            <span class="category-icon">📊</span>
+                            Observability
+                        </div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Distributed tracing
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Metrics collection
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Traffic monitoring
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-category">
+                        <div class="category-title">
+                            <span class="category-icon">⚡</span>
+                            Traffic Management
+                        </div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Load balancing
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Circuit breaking
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Retry and timeout policies
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <div class="architecture-section api-gateway">
+                <div class="section-header">
+                    <div class="section-icon">🚪</div>
+                    <h2 class="section-title">API Gateway</h2>
+                    <p class="section-subtitle">Single entry point for external client requests</p>
+                </div>
+
+                <div class="diagram">
+                    <div class="gateway-diagram">
+                        <div class="gateway-box">
+                            API Gateway
+                        </div>
+                        <div style="font-size: 1.5em; color: #666;">↓</div>
+                        <div class="services-row">
+                            <div class="backend-service">User Service</div>
+                            <div class="backend-service">Order Service</div>
+                            <div class="backend-service">Payment Service</div>
+                        </div>
+                        <div class="services-row">
+                            <div class="backend-service">Inventory Service</div>
+                            <div class="backend-service">Notification Service</div>
+                            <div class="backend-service">Analytics Service</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="features-section">
+                    <div class="feature-category">
+                        <div class="category-title">
+                            <span class="category-icon">🛡️</span>
+                            API Management
+                        </div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Request routing and aggregation
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Protocol translation
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Rate limiting and throttling
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-category">
+                        <div class="category-title">
+                            <span class="category-icon">🔐</span>
+                            Authentication & Authorization
+                        </div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Client authentication
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                API key management
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                OAuth/JWT validation
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="feature-category">
+                        <div class="category-title">
+                            <span class="category-icon">🔧</span>
+                            Request Processing
+                        </div>
+                        <div class="feature-list">
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Request/response transformation
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                Caching
+                            </div>
+                            <div class="feature-item">
+                                <span class="feature-icon">✅</span>
+                                CORS handling
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="comparison-table">
+            <h2 class="table-title">Feature Comparison</h2>
+            <div class="comparison-grid">
+                <div class="grid-header">Aspect</div>
+                <div class="grid-header">Service Mesh</div>
+                <div class="grid-header">API Gateway</div>
+
+                <div class="grid-aspect">Primary Purpose</div>
+                <div class="grid-cell">Service-to-service communication</div>
+                <div class="grid-cell">Client-to-service communication</div>
+
+                <div class="grid-aspect">Architecture Pattern</div>
+                <div class="grid-cell">Distributed sidecar proxies</div>
+                <div class="grid-cell">Centralized gateway</div>
+
+                <div class="grid-aspect">Complexity</div>
+                <div class="grid-cell"><span class="con-icon">⚠️</span> High complexity</div>
+                <div class="grid-cell"><span class="pro-icon">✅</span> Lower complexity</div>
+
+                <div class="grid-aspect">Performance Impact</div>
+                <div class="grid-cell"><span class="con-icon">⚠️</span> Additional hop per request</div>
+                <div class="grid-cell"><span class="neutral-icon">⚡</span> Single hop for external requests</div>
+
+                <div class="grid-aspect">Security</div>
+                <div class="grid-cell"><span class="pro-icon">✅</span> mTLS, zero-trust</div>
+                <div class="grid-cell"><span class="pro-icon">✅</span> Perimeter security</div>
+
+                <div class="grid-aspect">Observability</div>
+                <div class="grid-cell"><span class="pro-icon">✅</span> Comprehensive tracing</div>
+                <div class="grid-cell"><span class="neutral-icon">⚡</span> Gateway-level metrics</div>
+
+                <div class="grid-aspect">Learning Curve</div>
+                <div class="grid-cell"><span class="con-icon">⚠️</span> Steep learning curve</div>
+                <div class="grid-cell"><span class="pro-icon">✅</span> Familiar concepts</div>
+
+                <div class="grid-aspect">Operational Overhead</div>
+                <div class="grid-cell"><span class="con-icon">⚠️</span> High operational complexity</div>
+                <div class="grid-cell"><span class="pro-icon">✅</span> Centralized management</div>
+
+                <div class="grid-aspect">Scalability</div>
+                <div class="grid-cell"><span class="pro-icon">✅</span> Scales with services</div>
+                <div class="grid-cell"><span class="neutral-icon">⚡</span> Gateway can be bottleneck</div>
+            </div>
+        </div>
+
+        <div class="decision-matrix">
+            <h2 class="decision-title">When to Choose Each</h2>
+            <div class="decision-cards">
+                <div class="decision-card choose-mesh">
+                    <h3>Choose Service Mesh When:</h3>
+                    <div class="use-case">
+                        <span class="use-case-icon">🏢</span>
+                        Large number of microservices (50+)
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">🔒</span>
+                        Zero-trust security is required
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">📊</span>
+                        Need comprehensive observability
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">⚡</span>
+                        Complex traffic management needed
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">🛠️</span>
+                        Team has strong DevOps capabilities
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">🌐</span>
+                        Multi-cluster deployments
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">🔄</span>
+                        Frequent service-to-service calls
+                    </div>
+                </div>
+
+                <div class="decision-card choose-gateway">
+                    <h3>Choose API Gateway When:</h3>
+                    <div class="use-case">
+                        <span class="use-case-icon">📱</span>
+                        External client access is primary concern
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">🎯</span>
+                        Simpler architecture preferred
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">🔑</span>
+                        Need API management features
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">⚡</span>
+                        Quick implementation required
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">💰</span>
+                        Cost-conscious deployment
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">📊</span>
+                        Basic observability sufficient
+                    </div>
+                    <div class="use-case">
+                        <span class="use-case-icon">🏗️</span>
+                        Legacy system integration needed
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Add some interactive animations
+        document.addEventListener('DOMContentLoaded', function() {
+            // Animate service boxes on hover
+            const serviceBoxes = document.querySelectorAll('.service-box');
+            serviceBoxes.forEach(box => {
+                box.addEventListener('mouseenter', function() {
+                    this.style.transform = 'translateY(-5px) scale(1.02)';
+                });
+                box.addEventListener('mouseleave', function() {
+                    this.style.transform = 'translateY(0) scale(1)';
+                });
+            });
+
+            // Animate feature items
+            const featureItems = document.querySelectorAll('.feature-item');
+            featureItems.forEach((item, index) => {
+                item.style.opacity = '0';
+                item.style.transform = 'translateX(-20px)';
+                
+                setTimeout(() => {
+                    item.style.transition = 'all 0.5s ease';
+                    item.style.opacity = '1';
+                    item.style.transform = 'translateX(0)';
+                }, index * 100);
+            });
+
+            // Add click interaction to comparison cells
+            const gridCells = document.querySelectorAll('.grid-cell');
+            gridCells.forEach(cell => {
+                cell.addEventListener('click', function() {
+                    this.style.background = 'rgba(102, 126, 234, 0.1)';
+                    setTimeout(() => {
+                        this.style.background = 'white';
+                    }, 300);
+                });
+            });
+        });
+    </script>
+</body>
+</html>

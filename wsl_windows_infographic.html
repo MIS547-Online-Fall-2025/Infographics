@@ -1,0 +1,864 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WSL Windows Subsystem for Linux Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0078d4 0%, #106ebe 50%, #005a9e 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1e1e1e 0%, #2d2d30 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="20" y="20" width="25" height="25" fill="rgba(0,120,212,0.3)"/><rect x="55" y="35" width="20" height="20" fill="rgba(255,165,0,0.3)"/><circle cx="75" cy="75" r="8" fill="rgba(34,139,34,0.3)"/></svg>');
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(45deg, #0078d4, #ff8c00);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .wsl-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #0078d4, #ff8c00);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .intro-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #0078d4;
+        }
+        
+        .intro-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 15px;
+        }
+        
+        .intro-text {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .wsl-benefits {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .benefit-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .benefit-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .benefit-text {
+            font-weight: 600;
+            color: #1e1e1e;
+            font-size: 14px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1e1e1e;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #0078d4, #ff8c00);
+            border-radius: 2px;
+        }
+        
+        .installation-section {
+            margin-bottom: 50px;
+        }
+        
+        .installation-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 25px;
+            margin-bottom: 40px;
+        }
+        
+        .installation-step {
+            background: linear-gradient(135deg, #e6f3ff 0%, #cce7ff 100%);
+            border-radius: 15px;
+            padding: 25px;
+            border-left: 5px solid #0078d4;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+        
+        .installation-step:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 120, 212, 0.2);
+        }
+        
+        .step-number {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            background: #0078d4;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 14px;
+        }
+        
+        .step-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #1e1e1e;
+            margin-bottom: 10px;
+        }
+        
+        .step-command {
+            background: #1e1e1e;
+            color: #0078d4;
+            padding: 12px 15px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 14px;
+            margin: 10px 0;
+            position: relative;
+        }
+        
+        .step-command.powershell::before {
+            content: 'PS> ';
+            color: #ff8c00;
+        }
+        
+        .step-command.cmd::before {
+            content: 'C:> ';
+            color: #32cd32;
+        }
+        
+        .step-description {
+            color: #4a5568;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+        }
+        
+        .command-category {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .command-category:hover {
+            border-color: #0078d4;
+            transform: translateY(-3px);
+        }
+        
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1e1e1e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .category-icon {
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #0078d4, #ff8c00);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .command-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #e6f3ff;
+            border-radius: 10px;
+            border-left: 3px solid #0078d4;
+        }
+        
+        .command-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .command-code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            color: #1e1e1e;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .command-desc {
+            font-size: 12px;
+            color: #64748b;
+            line-height: 1.4;
+        }
+        
+        .distro-section {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .distro-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #166534;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .distro-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+        }
+        
+        .distro-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            text-align: center;
+        }
+        
+        .distro-logo {
+            font-size: 2rem;
+            margin-bottom: 10px;
+        }
+        
+        .distro-name {
+            font-weight: 600;
+            color: #166534;
+            margin-bottom: 10px;
+            font-size: 16px;
+        }
+        
+        .distro-command {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 11px;
+            color: #374151;
+            background: #f3f4f6;
+            padding: 8px 10px;
+            border-radius: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .integration-section {
+            background: linear-gradient(135deg, #fefce8 0%, #fef3c7 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .integration-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .integration-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .integration-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .integration-icon {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+        }
+        
+        .integration-name {
+            font-weight: 600;
+            color: #92400e;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .integration-desc {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .tips-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tip-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tip-title {
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .tip-text {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .installation-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="wsl-icon">🪟</div>
+            <h1>WSL</h1>
+            <p>Windows Subsystem for Linux</p>
+        </div>
+        
+        <div class="content">
+            <div class="intro-section">
+                <div class="intro-title">🚀 What is WSL?</div>
+                <div class="intro-text">
+                    WSL (Windows Subsystem for Linux) lets you run a Linux environment directly on Windows, unmodified, without the overhead of a traditional virtual machine or dual-boot setup. Perfect for developers who need Linux tools on Windows.
+                </div>
+                <div class="wsl-benefits">
+                    <div class="benefit-item">
+                        <div class="benefit-icon">⚡</div>
+                        <div class="benefit-text">Native Performance</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🔄</div>
+                        <div class="benefit-text">File Sharing</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🖥️</div>
+                        <div class="benefit-text">GUI Apps</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">🐳</div>
+                        <div class="benefit-text">Docker Support</div>
+                    </div>
+                    <div class="benefit-item">
+                        <div class="benefit-icon">💻</div>
+                        <div class="benefit-text">VS Code Integration</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="installation-section">
+                <h2 class="section-title">Installation Steps</h2>
+                <div class="installation-grid">
+                    <div class="installation-step">
+                        <div class="step-number">1</div>
+                        <div class="step-title">Enable WSL Feature</div>
+                        <div class="step-command powershell">dism.exe /online /enable-feature /featurename:Microsoft-Windows-Subsystem-Linux /all /norestart</div>
+                        <div class="step-description">Enable WSL feature through DISM (requires admin privileges)</div>
+                    </div>
+                    
+                    <div class="installation-step">
+                        <div class="step-number">2</div>
+                        <div class="step-title">Enable Virtual Machine Platform</div>
+                        <div class="step-command powershell">dism.exe /online /enable-feature /featurename:VirtualMachinePlatform /all /norestart</div>
+                        <div class="step-description">Required for WSL 2 functionality</div>
+                    </div>
+                    
+                    <div class="installation-step">
+                        <div class="step-number">3</div>
+                        <div class="step-title">Restart Computer</div>
+                        <div class="step-command powershell">Restart-Computer</div>
+                        <div class="step-description">Restart to apply the feature changes</div>
+                    </div>
+                    
+                    <div class="installation-step">
+                        <div class="step-number">4</div>
+                        <div class="step-title">Download Linux Kernel Update</div>
+                        <div class="step-command cmd">https://aka.ms/wsl2kernel</div>
+                        <div class="step-description">Download and install the WSL2 Linux kernel update package</div>
+                    </div>
+                    
+                    <div class="installation-step">
+                        <div class="step-number">5</div>
+                        <div class="step-title">Set WSL 2 as Default</div>
+                        <div class="step-command powershell">wsl --set-default-version 2</div>
+                        <div class="step-description">Configure WSL 2 as the default version for new distros</div>
+                    </div>
+                    
+                    <div class="installation-step">
+                        <div class="step-number">6</div>
+                        <div class="step-title">Install Linux Distribution</div>
+                        <div class="step-command powershell">wsl --install -d Ubuntu</div>
+                        <div class="step-description">Install your preferred Linux distribution from Microsoft Store</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Essential WSL Commands</h2>
+            <div class="commands-grid">
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">⚙️</div>
+                        Basic Operations
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl</div>
+                        <div class="command-desc">Start default Linux distribution</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl -l -v</div>
+                        <div class="command-desc">List installed distributions with versions</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl -d &lt;DistroName&gt;</div>
+                        <div class="command-desc">Start specific distribution</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --shutdown</div>
+                        <div class="command-desc">Shutdown all running distributions</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --status</div>
+                        <div class="command-desc">Show WSL status information</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📥</div>
+                        Installation & Management
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --install</div>
+                        <div class="command-desc">Install WSL and default Ubuntu distribution</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --install -d &lt;Distro&gt;</div>
+                        <div class="command-desc">Install specific distribution</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --list --online</div>
+                        <div class="command-desc">Show available distributions online</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --unregister &lt;Distro&gt;</div>
+                        <div class="command-desc">Uninstall distribution and delete data</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --update</div>
+                        <div class="command-desc">Update WSL to latest version</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔧</div>
+                        Configuration
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --set-version &lt;Distro&gt; 2</div>
+                        <div class="command-desc">Convert distribution to WSL 2</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --set-default &lt;Distro&gt;</div>
+                        <div class="command-desc">Set default distribution</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --set-default-version 2</div>
+                        <div class="command-desc">Set default version for new installs</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --terminate &lt;Distro&gt;</div>
+                        <div class="command-desc">Force stop specific distribution</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --mount &lt;Disk&gt;</div>
+                        <div class="command-desc">Mount physical disk in WSL</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📁</div>
+                        File System Access
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">\\wsl$\Ubuntu\home\user</div>
+                        <div class="command-desc">Access WSL files from Windows Explorer</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">cd /mnt/c/Users</div>
+                        <div class="command-desc">Access Windows files from WSL</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">explorer.exe .</div>
+                        <div class="command-desc">Open current WSL directory in Windows Explorer</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">code .</div>
+                        <div class="command-desc">Open current directory in VS Code</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --exec &lt;command&gt;</div>
+                        <div class="command-desc">Execute Linux command from Windows</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">💾</div>
+                        Backup & Export
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --export &lt;Distro&gt; &lt;FileName&gt;</div>
+                        <div class="command-desc">Export distribution to tar file</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --import &lt;Distro&gt; &lt;InstallLocation&gt; &lt;FileName&gt;</div>
+                        <div class="command-desc">Import distribution from tar file</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --export Ubuntu backup.tar</div>
+                        <div class="command-desc">Example: Export Ubuntu to backup.tar</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --import Ubuntu-Clone C:\WSL backup.tar</div>
+                        <div class="command-desc">Example: Import backup as new distribution</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🐛</div>
+                        Troubleshooting
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --version</div>
+                        <div class="command-desc">Show WSL version information</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --debug-shell</div>
+                        <div class="command-desc">Open debug shell for troubleshooting</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wsl --system</div>
+                        <div class="command-desc">Launch system distribution</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">Get-WindowsOptionalFeature -Online -FeatureName Microsoft-Windows-Subsystem-Linux</div>
+                        <div class="command-desc">Check if WSL feature is enabled</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="distro-section">
+                <h3 class="distro-title">🐧 Popular Linux Distributions</h3>
+                <div class="distro-grid">
+                    <div class="distro-item">
+                        <div class="distro-logo">🟠</div>
+                        <div class="distro-name">Ubuntu</div>
+                        <div class="distro-command">wsl --install -d Ubuntu</div>
+                        <div class="distro-command">wsl --install -d Ubuntu-22.04</div>
+                    </div>
+                    
+                    <div class="distro-item">
+                        <div class="distro-logo">🔴</div>
+                        <div class="distro-name">Red Hat Enterprise</div>
+                        <div class="distro-command">wsl --install -d RHEL</div>
+                        <div class="distro-command">Available via Microsoft Store</div>
+                    </div>
+                    
+                    <div class="distro-item">
+                        <div class="distro-logo">🟢</div>
+                        <div class="distro-name">openSUSE</div>
+                        <div class="distro-command">wsl --install -d openSUSE-42</div>
+                        <div class="distro-command">wsl --install -d openSUSE-Leap-15.4</div>
+                    </div>
+                    
+                    <div class="distro-item">
+                        <div class="distro-logo">🔵</div>
+                        <div class="distro-name">Debian</div>
+                        <div class="distro-command">wsl --install -d Debian</div>
+                        <div class="distro-command">Stable and lightweight option</div>
+                    </div>
+                    
+                    <div class="distro-item">
+                        <div class="distro-logo">🟣</div>
+                        <div class="distro-name">Kali Linux</div>
+                        <div class="distro-command">wsl --install -d kali-linux</div>
+                        <div class="distro-command">Security and penetration testing</div>
+                    </div>
+                    
+                    <div class="distro-item">
+                        <div class="distro-logo">⚫</div>
+                        <div class="distro-name">Alpine</div>
+                        <div class="distro-command">wsl --install -d Alpine</div>
+                        <div class="distro-command">Minimal and security-oriented</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="integration-section">
+                <h3 class="integration-title">🔗 Windows Integration Features</h3>
+                <div class="integration-grid">
+                    <div class="integration-item">
+                        <div class="integration-icon">📝</div>
+                        <div class="integration-name">VS Code Integration</div>
+                        <div class="integration-desc">Seamless development with Remote-WSL extension. Edit Linux files directly in VS Code.</div>
+                    </div>
+                    
+                    <div class="integration-item">
+                        <div class="integration-icon">📁</div>
+                        <div class="integration-name">File System Access</div>
+                        <div class="integration-desc">Access Windows files from Linux (/mnt/c) and Linux files from Windows Explorer.</div>
+                    </div>
+                    
+                    <div class="integration-item">
+                        <div class="integration-icon">🐳</div>
+                        <div class="integration-name">Docker Desktop</div>
+                        <div class="integration-desc">Run Docker containers natively in WSL 2 with better performance than Hyper-V.</div>
+                    </div>
+                    
+                    <div class="integration-item">
+                        <div class="integration-icon">💻</div>
+                        <div class="integration-name">Windows Terminal</div>
+                        <div class="integration-desc">Modern terminal with tabs, profiles, and seamless WSL integration.</div>
+                    </div>
+                    
+                    <div class="integration-item">
+                        <div class="integration-icon">🖥️</div>
+                        <div class="integration-name">GUI Applications</div>
+                        <div class="integration-desc">Run Linux GUI apps with WSLg (WSL GUI) support in Windows 11.</div>
+                    </div>
+                    
+                    <div class="integration-item">
+                        <div class="integration-icon">🔗</div>
+                        <div class="integration-name">Cross-Platform Commands</div>
+                        <div class="integration-desc">Execute Linux commands from Windows and Windows commands from Linux.</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tips-section">
+                <h3 class="tips-title">💡 WSL Pro Tips</h3>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <div class="tip-title">Use WSL 2</div>
+                        <div class="tip-text">WSL 2 offers better performance, full system call compatibility, and Docker support</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Store Files in Linux</div>
+                        <div class="tip-text">Keep project files in the Linux filesystem (/home/user) for better performance</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Configure Memory Limits</div>
+                        <div class="tip-text">Create .wslconfig file to limit memory usage: [wsl2] memory=4GB</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Use Windows Terminal</div>
+                        <div class="tip-text">Windows Terminal provides the best WSL experience with multiple tabs and customization</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Install VS Code Remote Extension</div>
+                        <div class="tip-text">Remote-WSL extension allows seamless development in WSL from VS Code</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Set Up Git Credentials</div>
+                        <div class="tip-text">Use Git Credential Manager to share Git credentials between Windows and WSL</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Enable Systemd</div>
+                        <div class="tip-text">Add [boot] systemd=true to /etc/wsl.conf for systemd support in WSL 2</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Regular Backups</div>
+                        <div class="tip-text">Export your WSL distributions regularly to avoid data loss during updates</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

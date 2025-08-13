@@ -1,0 +1,959 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Essential Linux Commands Reference Guide</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #0ea5e9 0%, #8b5cf6 50%, #ec4899 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.2);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #1c1c1c 0%, #2d2d2d 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect x="15" y="15" width="20" height="20" fill="rgba(14,165,233,0.3)"/><circle cx="70" cy="30" r="8" fill="rgba(139,92,246,0.3)"/><polygon points="40,65 50,55 60,65 50,75" fill="rgba(236,72,153,0.3)"/></svg>');
+        }
+        
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 800;
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 1;
+            background: linear-gradient(45deg, #0ea5e9, #ec4899);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .header p {
+            font-size: 1.3rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .linux-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #0ea5e9, #ec4899);
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 40px;
+            color: white;
+            position: relative;
+            z-index: 1;
+            font-weight: bold;
+        }
+        
+        .content {
+            padding: 40px;
+        }
+        
+        .intro-section {
+            background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-bottom: 40px;
+            border-left: 5px solid #0ea5e9;
+        }
+        
+        .intro-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1c1c1c;
+            margin-bottom: 15px;
+        }
+        
+        .intro-text {
+            color: #4a5568;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+        
+        .command-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .type-item {
+            background: white;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            border: 2px solid #e2e8f0;
+        }
+        
+        .type-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .type-text {
+            font-weight: 600;
+            color: #1c1c1c;
+            font-size: 14px;
+        }
+        
+        .section-title {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1c1c1c;
+            margin-bottom: 30px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .section-title::after {
+            content: '';
+            position: absolute;
+            bottom: -8px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60px;
+            height: 4px;
+            background: linear-gradient(90deg, #0ea5e9, #ec4899);
+            border-radius: 2px;
+        }
+        
+        .commands-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 30px;
+            margin-bottom: 40px;
+        }
+        
+        .command-category {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border: 2px solid #e2e8f0;
+            transition: all 0.3s ease;
+        }
+        
+        .command-category:hover {
+            border-color: #0ea5e9;
+            transform: translateY(-3px);
+        }
+        
+        .category-title {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: #1c1c1c;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .category-icon {
+            width: 25px;
+            height: 25px;
+            background: linear-gradient(135deg, #0ea5e9, #ec4899);
+            border-radius: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 12px;
+        }
+        
+        .command-item {
+            margin-bottom: 15px;
+            padding: 15px;
+            background: #f8fafc;
+            border-radius: 10px;
+            border-left: 3px solid #0ea5e9;
+        }
+        
+        .command-item:last-child {
+            margin-bottom: 0;
+        }
+        
+        .command-code {
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            color: #1c1c1c;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+        
+        .command-desc {
+            font-size: 12px;
+            color: #6b7280;
+            line-height: 1.4;
+        }
+        
+        .shortcuts-section {
+            background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .shortcuts-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #92400e;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .shortcuts-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .shortcut-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .shortcut-key {
+            background: #92400e;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            font-weight: bold;
+            min-width: 80px;
+            text-align: center;
+        }
+        
+        .shortcut-desc {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        .examples-section {
+            background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin: 40px 0;
+        }
+        
+        .examples-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #065f46;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+        }
+        
+        .example-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .example-title {
+            font-weight: 600;
+            color: #065f46;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .example-command {
+            background: #1c1c1c;
+            color: #10b981;
+            padding: 10px 12px;
+            border-radius: 6px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 12px;
+            margin-bottom: 8px;
+            overflow-x: auto;
+        }
+        
+        .example-command::before {
+            content: '$ ';
+            color: #6b7280;
+        }
+        
+        .example-desc {
+            font-size: 12px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        .tips-section {
+            background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+            border-radius: 15px;
+            padding: 30px;
+            margin-top: 40px;
+        }
+        
+        .tips-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e3a8a;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        
+        .tip-item {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .tip-title {
+            font-weight: 600;
+            color: #1e3a8a;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+        
+        .tip-text {
+            font-size: 13px;
+            color: #4a5568;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header p {
+                font-size: 1.1rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .commands-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="linux-icon">🐧</div>
+            <h1>Linux Commands</h1>
+            <p>Essential Commands for Every User</p>
+        </div>
+        
+        <div class="content">
+            <div class="intro-section">
+                <div class="intro-title">🚀 Master the Command Line</div>
+                <div class="intro-text">
+                    Linux commands are powerful tools that give you complete control over your system. This guide covers the most essential commands every Linux user should know, from basic file operations to advanced system administration.
+                </div>
+                <div class="command-types">
+                    <div class="type-item">
+                        <div class="type-icon">📁</div>
+                        <div class="type-text">File Operations</div>
+                    </div>
+                    <div class="type-item">
+                        <div class="type-icon">🔍</div>
+                        <div class="type-text">Search & Find</div>
+                    </div>
+                    <div class="type-item">
+                        <div class="type-icon">📊</div>
+                        <div class="type-text">System Info</div>
+                    </div>
+                    <div class="type-item">
+                        <div class="type-icon">⚙️</div>
+                        <div class="type-text">Process Control</div>
+                    </div>
+                    <div class="type-item">
+                        <div class="type-icon">🌐</div>
+                        <div class="type-text">Network Tools</div>
+                    </div>
+                </div>
+            </div>
+            
+            <h2 class="section-title">Essential Linux Commands</h2>
+            <div class="commands-grid">
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📁</div>
+                        File & Directory Operations
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ls -la</div>
+                        <div class="command-desc">List files with detailed info and hidden files</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">cd /path/to/directory</div>
+                        <div class="command-desc">Change directory</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">pwd</div>
+                        <div class="command-desc">Print current working directory</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">mkdir -p folder/subfolder</div>
+                        <div class="command-desc">Create directories recursively</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">rmdir folder</div>
+                        <div class="command-desc">Remove empty directory</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">rm -rf folder</div>
+                        <div class="command-desc">Remove directory and contents forcefully</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📄</div>
+                        File Manipulation
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">cp file1 file2</div>
+                        <div class="command-desc">Copy file1 to file2</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">mv oldname newname</div>
+                        <div class="command-desc">Move/rename file or directory</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">touch filename</div>
+                        <div class="command-desc">Create empty file or update timestamp</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ln -s target linkname</div>
+                        <div class="command-desc">Create symbolic link</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">chmod 755 file</div>
+                        <div class="command-desc">Change file permissions</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">chown user:group file</div>
+                        <div class="command-desc">Change file ownership</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">👁️</div>
+                        Viewing & Editing Files
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">cat filename</div>
+                        <div class="command-desc">Display entire file content</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">less filename</div>
+                        <div class="command-desc">View file content page by page</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">head -n 10 file</div>
+                        <div class="command-desc">Show first 10 lines of file</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">tail -f logfile</div>
+                        <div class="command-desc">Follow log file updates in real-time</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">nano filename</div>
+                        <div class="command-desc">Edit file with nano editor</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">vim filename</div>
+                        <div class="command-desc">Edit file with vim editor</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔍</div>
+                        Search & Find
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">find /path -name "*.txt"</div>
+                        <div class="command-desc">Find files by name pattern</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">grep -r "pattern" /path</div>
+                        <div class="command-desc">Search for text pattern recursively</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">locate filename</div>
+                        <div class="command-desc">Find file using database (fast)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">which command</div>
+                        <div class="command-desc">Show location of command</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">whereis program</div>
+                        <div class="command-desc">Locate binary, source, and manual</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">grep -i "text" file</div>
+                        <div class="command-desc">Case-insensitive text search</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">⚙️</div>
+                        Process Management
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ps aux</div>
+                        <div class="command-desc">Show all running processes</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">top</div>
+                        <div class="command-desc">Display real-time process activity</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">htop</div>
+                        <div class="command-desc">Enhanced interactive process viewer</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">kill -9 PID</div>
+                        <div class="command-desc">Force kill process by ID</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">killall processname</div>
+                        <div class="command-desc">Kill all processes by name</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">nohup command &</div>
+                        <div class="command-desc">Run command in background</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📊</div>
+                        System Information
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">df -h</div>
+                        <div class="command-desc">Show disk space usage</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">du -sh folder</div>
+                        <div class="command-desc">Show directory size</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">free -h</div>
+                        <div class="command-desc">Display memory usage</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uname -a</div>
+                        <div class="command-desc">Show system information</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uptime</div>
+                        <div class="command-desc">Show system uptime and load</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">whoami</div>
+                        <div class="command-desc">Show current username</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🌐</div>
+                        Network & Connectivity
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ping google.com</div>
+                        <div class="command-desc">Test network connectivity</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wget https://example.com/file</div>
+                        <div class="command-desc">Download file from internet</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">curl -O https://example.com/file</div>
+                        <div class="command-desc">Download file using curl</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">ssh user@hostname</div>
+                        <div class="command-desc">Connect to remote server</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">scp file user@host:/path</div>
+                        <div class="command-desc">Copy file to remote server</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">netstat -tulpn</div>
+                        <div class="command-desc">Show network connections</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">📦</div>
+                        Package Management
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">sudo apt update</div>
+                        <div class="command-desc">Update package list (Ubuntu/Debian)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">sudo apt install package</div>
+                        <div class="command-desc">Install package (Ubuntu/Debian)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">sudo yum install package</div>
+                        <div class="command-desc">Install package (RHEL/CentOS)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">sudo dnf install package</div>
+                        <div class="command-desc">Install package (Fedora)</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">apt list --installed</div>
+                        <div class="command-desc">List installed packages</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">sudo apt remove package</div>
+                        <div class="command-desc">Remove package</div>
+                    </div>
+                </div>
+                
+                <div class="command-category">
+                    <div class="category-title">
+                        <div class="category-icon">🔧</div>
+                        Text Processing
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">sort filename</div>
+                        <div class="command-desc">Sort lines in file</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">uniq filename</div>
+                        <div class="command-desc">Remove duplicate lines</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">wc -l filename</div>
+                        <div class="command-desc">Count lines in file</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">cut -d',' -f1 file.csv</div>
+                        <div class="command-desc">Extract first column from CSV</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">sed 's/old/new/g' file</div>
+                        <div class="command-desc">Replace text in file</div>
+                    </div>
+                    
+                    <div class="command-item">
+                        <div class="command-code">awk '{print $1}' file</div>
+                        <div class="command-desc">Print first column of file</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="shortcuts-section">
+                <h3 class="shortcuts-title">⌨️ Essential Keyboard Shortcuts</h3>
+                <div class="shortcuts-grid">
+                    <div class="shortcut-item">
+                        <div class="shortcut-key">Ctrl + C</div>
+                        <div class="shortcut-desc">Cancel/interrupt current command</div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-key">Ctrl + Z</div>
+                        <div class="shortcut-desc">Suspend current process</div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-key">Ctrl + L</div>
+                        <div class="shortcut-desc">Clear terminal screen</div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-key">Ctrl + R</div>
+                        <div class="shortcut-desc">Search command history</div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-key">Tab</div>
+                        <div class="shortcut-desc">Auto-complete commands/paths</div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-key">↑ ↓</div>
+                        <div class="shortcut-desc">Navigate command history</div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-key">Ctrl + A</div>
+                        <div class="shortcut-desc">Move to beginning of line</div>
+                    </div>
+                    
+                    <div class="shortcut-item">
+                        <div class="shortcut-key">Ctrl + E</div>
+                        <div class="shortcut-desc">Move to end of line</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="examples-section">
+                <h3 class="examples-title">💡 Common Command Combinations</h3>
+                <div class="examples-grid">
+                    <div class="example-item">
+                        <div class="example-title">Find Large Files</div>
+                        <div class="example-command">find /home -type f -size +100M</div>
+                        <div class="example-desc">Find files larger than 100MB in /home directory</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Monitor Log Files</div>
+                        <div class="example-command">tail -f /var/log/syslog | grep error</div>
+                        <div class="example-desc">Follow system log and filter for errors</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Archive and Compress</div>
+                        <div class="example-command">tar -czf backup.tar.gz /home/user</div>
+                        <div class="example-desc">Create compressed archive of directory</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Extract Archive</div>
+                        <div class="example-command">tar -xzf backup.tar.gz</div>
+                        <div class="example-desc">Extract compressed tar archive</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Count Files in Directory</div>
+                        <div class="example-command">ls -1 | wc -l</div>
+                        <div class="example-desc">Count number of files in current directory</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Find Recently Modified Files</div>
+                        <div class="example-command">find . -mtime -7 -type f</div>
+                        <div class="example-desc">Find files modified in last 7 days</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Check Disk Usage by Directory</div>
+                        <div class="example-command">du -h --max-depth=1 | sort -hr</div>
+                        <div class="example-desc">Show directory sizes sorted by largest</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Find and Delete Empty Files</div>
+                        <div class="example-command">find . -type f -empty -delete</div>
+                        <div class="example-desc">Find and remove all empty files</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Show Top CPU Processes</div>
+                        <div class="example-command">ps aux --sort=-%cpu | head</div>
+                        <div class="example-desc">Display processes using most CPU</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Find Files by Pattern and Execute</div>
+                        <div class="example-command">find . -name "*.log" -exec rm {} \;</div>
+                        <div class="example-desc">Find all .log files and delete them</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Monitor Network Traffic</div>
+                        <div class="example-command">netstat -i 1</div>
+                        <div class="example-desc">Show network interface statistics every second</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Create Backup with Date</div>
+                        <div class="example-command">cp file.txt file_$(date +%Y%m%d).txt</div>
+                        <div class="example-desc">Create backup file with current date</div>
+                    </div>
+                    
+                    <div class="example-item">
+                        <div class="example-title">Show Listening Ports</div>
+                        <div class="example-command">netstat -tlnp | grep LISTEN</div>
+                        <div class="example-desc">Display all listening network ports</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tips-section">
+                <h3 class="tips-title">💡 Pro Tips for Linux Command Line</h3>
+                <div class="tips-grid">
+                    <div class="tip-item">
+                        <div class="tip-title">Use Tab Completion</div>
+                        <div class="tip-text">Press Tab to auto-complete commands, filenames, and paths. Double-tap to see all options.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">History with !!</div>
+                        <div class="tip-text">Use !! to repeat the last command, or !n to repeat command number n from history.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Pipe Commands Together</div>
+                        <div class="tip-text">Use | to chain commands: ps aux | grep firefox | wc -l counts Firefox processes.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Use Wildcards</div>
+                        <div class="tip-text">* matches anything, ? matches single character: rm *.tmp deletes all .tmp files.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Background Tasks with &</div>
+                        <div class="tip-text">Add & at end of command to run in background: long_script.sh & continues in background.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Redirect Output</div>
+                        <div class="tip-text">Use > to save output to file, >> to append: command > output.txt saves result.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Use alias for Common Commands</div>
+                        <div class="tip-text">Create shortcuts: alias ll='ls -la' makes ll shorthand for detailed listing.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Check Command Manual</div>
+                        <div class="tip-text">Use man command_name to read detailed manual pages for any command.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Use which and type</div>
+                        <div class="tip-text">Find command locations with which, or use type to see if it's built-in, alias, or file.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Quick File Search</div>
+                        <div class="tip-text">Use locate for fast file search, but run updatedb first to update the database.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Monitor in Real-time</div>
+                        <div class="tip-text">Use watch command to run commands repeatedly: watch -n 2 df -h shows disk usage every 2 seconds.</div>
+                    </div>
+                    
+                    <div class="tip-item">
+                        <div class="tip-title">Safe File Operations</div>
+                        <div class="tip-text">Use -i flag for interactive mode: rm -i asks before deleting, cp -i before overwriting.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
